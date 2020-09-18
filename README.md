@@ -38,8 +38,8 @@ Alternativately you can download using the following link: https://github.com/mo
 
 ## How to use
 
-You can implement your custom plugin to create CRUD entities. An example can be found in the following repository:
-https://github.com/moiseh/wp-magic-crud-example.git
+You can implement your custom plugin to create CRUD entities.
+A full example of how to use can be found in the following repository: https://github.com/moiseh/wpmc-example.git
 
 ### 1. Creating entities
 
