@@ -1,20 +1,16 @@
 <?php
 
 class WPMC_Entity {
-    public $tableName;
-    public $restrictLogged = null;
     public $fields = [];
-    public $options = [];
+    public $tableName;
     public $displayField;
     public $defaultOrder;
     public $identifier;
     public $singular;
     public $plural;
-    private $editingRecord = null;
+    public $restrictLogged;
 
     function __construct($options = array()) {
-        $this->options = $options;
-
         if ( !empty($options['fields']) ) {
             $this->fields = $options['fields'];
         }
@@ -97,26 +93,6 @@ class WPMC_Entity {
         // $refl = new ReflectionClass( $class );
         // $method = $refl->hasMethod('render_form_content') ? $refl->getMethod('render_form_content') : null;
         // return !empty($method) && $method->class == $class;
-    }
-
-    function admin_menu() {        
-        $identifier = $this->identifier();
-
-        if ( !apply_filters("wpmc_show_menu_{$identifier}", true) ) {
-            return;
-        }
-
-        $capability = 'manage_saas';
-        $addLabel = __('Adicionar novo', 'wpbc');
-        $listingPage = array($this, 'listing_page_handler');
-        $formPage = array($this, 'form_page_handler');
-
-        add_menu_page($this->plural, $this->plural, $capability, $identifier, $listingPage);
-        add_submenu_page($identifier, $this->plural, $this->plural, $capability, $identifier, $listingPage);
-       
-        if ( $this->can_create() ) {
-            add_submenu_page($identifier, $addLabel, $addLabel, $capability, $this->form_page_identifier(), $formPage);
-        }
     }
 
     function current_page() {
@@ -220,12 +196,68 @@ class WPMC_Entity {
         $canManage = $this->can_manage($ids);
 
         if ( !$canManage ) {
-            // throw new Exception('You cannot edit other users id');
+            throw new Exception('You cannot edit other users id');
         }
     }
 
-    function listing_page_handler()
-    {
+    function find_by_id($id) {
+        global $wpdb;
+        $this->check_can_manage($id);
+        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$this->tableName} WHERE id = %d", $id), ARRAY_A);
+
+        return apply_filters('wpmc_entity_find', $row, $this);
+    }
+
+    function add_alert($message, $type = 'message') {
+        // $this->alert[$type] = $message;
+        queue_flash_message($message, $type);
+    }
+
+    function render_messages() {
+        WPFlashMessages::show_flash_messages();
+    }
+
+    function process_save_data($item) {
+        if ( !empty($this->entity->restrictLogged) ) {
+            $item[$this->entity->restrictLogged] = get_current_user_id();
+        }
+
+        return apply_filters('wpmc_process_form_data', $item, $this);
+    }
+
+    function save_db_data($item) {
+        $item = $this->process_save_data($item);
+
+        $db = new WPMC_Database();
+        $id = $db->saveData($this->tableName, $item);
+
+        $item['id'] = $id;
+        do_action('wpmc_form_saved', $this, $item);
+
+        return $id;
+    }
+
+    function admin_menu() {        
+        $identifier = $this->identifier();
+
+        if ( !apply_filters("wpmc_show_menu_{$identifier}", true) ) {
+            return;
+        }
+
+        $capability = 'manage_saas';
+        $addLabel = __('Adicionar novo', 'wpbc');
+        $listingPage = array($this, 'listing_page_handler');
+        $formPage = array($this, 'form_page_handler');
+
+        add_menu_page($this->plural, $this->plural, $capability, $identifier, $listingPage);
+        add_submenu_page($identifier, $this->plural, $this->plural, $capability, $identifier, $listingPage);
+       
+        if ( $this->can_create() ) {
+            add_submenu_page($identifier, $addLabel, $addLabel, $capability, $this->form_page_identifier(), $formPage);
+        }
+    }
+
+    function listing_page_handler() {
         global $wpdb;
 
         $table = new WPMC_List_Table($this);
@@ -257,27 +289,28 @@ class WPMC_Entity {
         <?php
     }
 
-    function form_page_handler()
-    {
+    function form_page_handler() {
+        $form = new WPMC_Form($this);
+
         if ( isset($_REQUEST['nonce']) && wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__)) ) {
-            $this->process_form_post();
+            $form->process_form_post();
         }
         else {
             if (isset($_REQUEST['id'])) {
-                $item = $this->get_editing_record();
+                $item = $form->get_editing_record();
 
                 if (!$item) {
                     $this->add_alert( __('Registro não encontrado', 'wpbc'), 'error' );
                 }
             }
             else {
-                $item = $this->form_default_values();
+                $item = $form->form_default_values();
             }
         }
         
         $identifier = $this->identifier();
         $title = ( isset($_REQUEST['id']) ? __('Gerenciar', 'wpbc') : __('Adicionar', 'wpbc') ) . ' ' . $this->singular;
-        add_meta_box($this->metabox_identifier(), $title, array($this, 'render_form_content'), $this->identifier(), 'normal', 'default');
+        add_meta_box($this->metabox_identifier(), $title, array($form, 'render_form_content'), $this->identifier(), 'normal', 'default');
 
         ?>
         <div class="wrap">
@@ -302,191 +335,5 @@ class WPMC_Entity {
             </form>
         </div>
         <?php
-    }
-
-    // Delegate all these functions into WPMC_Form
-    function process_save_data($item) {
-        if ( !empty($this->restrictLogged) ) {
-            $item[$this->restrictLogged] = get_current_user_id();
-        }
-
-        return apply_filters('wpmc_process_form_data', $item, $this);
-    }
-
-    function validate_form($item) {
-        $errors = [];
-        $fields = $this->is_creating() ? $this->get_creatable_fields() : $this->get_updatable_fields();
-
-        foreach ( $fields as $name => $field ) {
-            $required = isset($field['required']) && $field['required'];
-            $label = $field['label'];
-            $type = $field['type'];
-
-            if ( !empty($item[$name]) ) {
-                switch($type) {
-                    case 'email':
-                        if (!is_email($item['email'])) {
-                            $errors[] = __(sprintf('<b>%s</b> não é um e-mail válido', $label), 'wpbc');
-                        }
-                    break;
-                    case 'integer':
-                        // !absint(intval($item['phone'])))
-                    break;
-                }
-            }
-            else if ( $required ) {
-                $errors[] = __(sprintf('<b>%s</b> é obrigatório', $label), 'wpbc');
-            }
-        }
-
-        return $errors;
-    }
-
-    function get_editing_record() {
-        $row = $this->editingRecord;
-
-        // TODO: Checar se ID pertence ao do usuario logado para as Entity que devem ser protegidas / restringidas
-
-        if ( is_null($this->editingRecord) ) {
-            if ( isset($_REQUEST['id']) ) {
-                $id = absint($_REQUEST['id']);
-                $row = $this->find_by_id($id);
-            }
-
-            $row = array_merge((array)$row, $_REQUEST);
-        }
-        
-        return $row;
-    }
-
-    function set_editing_record($row) {
-        $this->editingRecord = $row;
-    }
-
-    function find_by_id($id) {
-        global $wpdb;
-        $this->check_can_manage($id);
-        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$this->tableName} WHERE id = %d", $id), ARRAY_A);
-
-        return apply_filters('wpmc_entity_find', $row, $this);
-    }
-
-    // function allowed_fields() {
-    //     if ( empty($this->fillable) ) {
-    //         throw new Exception('Please declare $allowedFields attributes');
-    //     }
-
-    //     return $this->fillable;
-    // }
-
-    function form_default_values() {
-        $values = [];
-        $values['id'] = 0;
-        $fields = $this->is_creating() ? $this->get_creatable_fields() : $this->get_updatable_fields();
-
-        foreach ( $fields as $name => $field ) {
-            $values[$name] = '';
-        }
-
-        return $values;
-    }
-
-    function add_alert($message, $type = 'message') {
-        // $this->alert[$type] = $message;
-        queue_flash_message($message, $type);
-    }
-
-    function render_messages() {
-        WPFlashMessages::show_flash_messages();
-    }
-    
-    function process_form_post($postData = []) {
-        if ( empty($postData) ) {
-            $postData = $_REQUEST;
-        }
-
-        $default = $this->form_default_values();
-        $item = shortcode_atts($default, $postData);
-        $post_errors = $this->validate_form($item);
-        $id = !empty($item['id']) ? $item['id'] : null;
-
-        if ( $id > 0 ) {
-            $this->check_can_manage($id);
-        }
-
-        if (empty($post_errors)) {
-            try {
-                $this->save_db_data($item);
-            }
-            catch (Exception $e) {
-                $this->add_alert($e->getMessage(), 'error');
-            }
-
-            $this->add_alert(__('Dados gravados com sucesso.', 'wpbc'));
-            $this->redirect( $this->listing_url() );
-        } else {
-            $this->add_alert(implode('<br />', $post_errors), 'error');
-        }
-    }
-
-    function save_db_data($item) {
-        $item = $this->process_save_data($item);
-
-        $db = new WPMC_Database();
-        $id = $db->saveData($this->tableName, $item);
-
-        $item['id'] = $id;
-        do_action('wpmc_form_saved', $this, $item);
-
-        return $id;
-    }
-
-    function render_form_content() {
-        foreach ( $this->fields as $name => $field ) {
-            $this->render_field($name);
-        }
-
-        $this->form_button();
-    }
-
-    function form_button($label = null) {
-        if ( empty($label) ) {
-           $label = __('Salvar', 'wpbc');
-        }
-
-        ?>
-        <input type="submit" value="<?php echo $label ?>" id="submit" class="button-primary" name="submit">
-        <?php
-    }
-
-    function form_field($type, $name, $label, $options = array()) {
-        $field = new WPMC_Field([
-            'item' => $this->get_editing_record(),
-            'type' => $type,
-            'name' => $name,
-            'label' => $label,
-            'options' => $options,
-        ]);
-
-        $field->render();
-    }
-
-    function render_field($name, $options = []) {
-        if ( !empty($this->fields[$name]) ) {
-            $field = $this->fields[$name];
-            $flags = $field['flags'];
-            $creating = in_array('create', $flags) && $this->is_creating();
-            $updating = in_array('update', $flags) && $this->is_updating();
-
-            if ( !$creating && !$updating ) {
-                return;
-            }
-
-            $obj = new WPMC_Field($field);
-            $obj->name = $name;
-            $obj->item = $this->get_editing_record();
-            $obj->options = $options;
-            $obj->render();
-        }
     }
 }

@@ -33,7 +33,7 @@ class WPMC_Field_Entity {
         }
 
         foreach ( $entity->fields as $name => $field ) {
-            if ( $field['type'] == 'entity' ) {
+            if ( $field['type'] == 'has_many' ) {
                 $relationId = $item['id'];
                 $item[$name] = $this->getRelatedRows($field, $relationId);
             }
