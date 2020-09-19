@@ -10,9 +10,9 @@ function qbuilder() {
 }
 
 function load_app_entities() {
-    global $wpsc_entities;
+    global $wpmc_entities;
 
-    $wpsc_entities = [];
+    $wpmc_entities = [];
     $entities = apply_filters('wpmc_entities', array());
     
     foreach ( $entities as $entity => $options ) {
@@ -21,15 +21,15 @@ function load_app_entities() {
         $obj = new WPMC_Entity($options);
         $obj->init();
     
-        $wpsc_entities[$entity] = $obj;
+        $wpmc_entities[$entity] = $obj;
     }
 }
 
 function migrate_entities_db() {
-    global $wpsc_entities;
+    global $wpmc_entities;
 
     $db = new WPMC_Database();
-    $db->migrateEntityTables($wpsc_entities);
+    $db->migrateEntityTables($wpmc_entities);
 }
 
 

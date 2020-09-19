@@ -56,17 +56,12 @@ class WPMC_Entity {
      * @return WPMC_Entity
      */
     static function instance($name) {
-        global $wpsc_entities;
-        return $wpsc_entities[$name];
+        global $wpmc_entities;
+        return $wpmc_entities[$name];
     }
 
     function init() {
         add_action('admin_menu', array($this, 'admin_menu'));
-    }
-
-    function install() {
-        $db = new WPMC_Database();
-        $db->doCreateTable($this->tableName, $this->fields);
     }
 
     function identifier() {
@@ -107,7 +102,7 @@ class WPMC_Entity {
     function admin_menu() {        
         $identifier = $this->identifier();
 
-        if ( !apply_filters("wpsc_show_menu_{$identifier}", true) ) {
+        if ( !apply_filters("wpmc_show_menu_{$identifier}", true) ) {
             return;
         }
 
@@ -262,12 +257,60 @@ class WPMC_Entity {
         <?php
     }
 
+    function form_page_handler()
+    {
+        if ( isset($_REQUEST['nonce']) && wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__)) ) {
+            $this->process_form_post();
+        }
+        else {
+            if (isset($_REQUEST['id'])) {
+                $item = $this->get_editing_record();
+
+                if (!$item) {
+                    $this->add_alert( __('Registro não encontrado', 'wpbc'), 'error' );
+                }
+            }
+            else {
+                $item = $this->form_default_values();
+            }
+        }
+        
+        $identifier = $this->identifier();
+        $title = ( isset($_REQUEST['id']) ? __('Gerenciar', 'wpbc') : __('Adicionar', 'wpbc') ) . ' ' . $this->singular;
+        add_meta_box($this->metabox_identifier(), $title, array($this, 'render_form_content'), $this->identifier(), 'normal', 'default');
+
+        ?>
+        <div class="wrap">
+            <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
+            <h2><?php echo $this->singular ?> <a class="add-new-h2" href="<?php echo $this->listing_url(); ?>"><?php _e('voltar para a lista', 'wpbc')?></a>
+            </h2>
+
+            <?php $this->render_messages(); ?>
+
+            <form id="form_<?php echo $identifier; ?>" class="form-meta-box" method="POST">
+                <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
+                
+                <input type="hidden" name="id" value="<?php echo $item['id'] ?>"/>
+
+                <div class="metabox-holder" id="poststuff">
+                    <div id="post-body">
+                        <div id="post-body-content">
+                            <?php do_meta_boxes($this->identifier(), 'normal', []); ?>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <?php
+    }
+
+    // Delegate all these functions into WPMC_Form
     function process_save_data($item) {
         if ( !empty($this->restrictLogged) ) {
             $item[$this->restrictLogged] = get_current_user_id();
         }
 
-        return apply_filters('wpsc_process_form_data', $item, $this);
+        return apply_filters('wpmc_process_form_data', $item, $this);
     }
 
     function validate_form($item) {
@@ -325,7 +368,7 @@ class WPMC_Entity {
         $this->check_can_manage($id);
         $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$this->tableName} WHERE id = %d", $id), ARRAY_A);
 
-        return apply_filters('wpsc_entity_find', $row, $this);
+        return apply_filters('wpmc_entity_find', $row, $this);
     }
 
     // function allowed_fields() {
@@ -355,53 +398,6 @@ class WPMC_Entity {
 
     function render_messages() {
         WPFlashMessages::show_flash_messages();
-    }
-
-    function form_page_handler()
-    {
-        if ( isset($_REQUEST['nonce']) && wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__)) ) {
-            $this->process_form_post();
-        }
-        else {
-            if (isset($_REQUEST['id'])) {
-                $item = $this->get_editing_record();
-
-                if (!$item) {
-                    $this->add_alert( __('Registro não encontrado', 'wpbc'), 'error' );
-                }
-            }
-            else {
-                $item = $this->form_default_values();
-            }
-        }
-        
-        $identifier = $this->identifier();
-        $title = ( isset($_REQUEST['id']) ? __('Gerenciar', 'wpbc') : __('Adicionar', 'wpbc') ) . ' ' . $this->singular;
-        add_meta_box($this->metabox_identifier(), $title, array($this, 'render_form_content'), $this->identifier(), 'normal', 'default');
-
-        ?>
-        <div class="wrap">
-            <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
-            <h2><?php echo $this->singular ?> <a class="add-new-h2" href="<?php echo $this->listing_url(); ?>"><?php _e('voltar para a lista', 'wpbc')?></a>
-            </h2>
-
-            <?php $this->render_messages(); ?>
-
-            <form id="form_<?php echo $identifier; ?>" class="form-meta-box" method="POST">
-                <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
-                
-                <input type="hidden" name="id" value="<?php echo $item['id'] ?>"/>
-
-                <div class="metabox-holder" id="poststuff">
-                    <div id="post-body">
-                        <div id="post-body-content">
-                            <?php do_meta_boxes($this->identifier(), 'normal', []); ?>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <?php
     }
     
     function process_form_post($postData = []) {
@@ -440,7 +436,7 @@ class WPMC_Entity {
         $id = $db->saveData($this->tableName, $item);
 
         $item['id'] = $id;
-        do_action('wpsc_form_saved', $this, $item);
+        do_action('wpmc_form_saved', $this, $item);
 
         return $id;
     }

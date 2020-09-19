@@ -119,7 +119,7 @@ class WPMC_List_Table extends WP_List_Table {
         $query = $this->build_listing_query();
         $items = $query->get();
         
-        $this->items = apply_filters('wpsc_entity_list', $items, $this->entity);
+        $this->items = apply_filters('wpmc_entity_list', $items, $this->entity);
 
         $total_items = $query->getCountRows();
         $per_page = $this->get_per_page();
@@ -154,7 +154,7 @@ class WPMC_List_Table extends WP_List_Table {
         $qb->limit($perPage);
         $qb->offset($paged);
 
-        return apply_filters('wpsc_listing_query', $qb, $this->entity);
+        return apply_filters('wpmc_listing_query', $qb, $this->entity);
     }
 
     function prepare_sql_listing($sql = array()) {

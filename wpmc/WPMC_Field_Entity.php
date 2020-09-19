@@ -2,11 +2,11 @@
 
 class WPMC_Field_Entity {
     function initHooks() {
-        add_action('wpsc_form_saved', array($this, 'formSaved'), 10, 2);
-        add_filter('wpsc_form_validate', array($this, 'formValidate'), 10, 3);
-        add_action('wpsc_field_render', array($this, 'renderEntityFieldType'), 10, 2);
-        add_filter('wpsc_entity_find', array($this, 'mergeEntityFind'), 10, 2);
-        add_filter('wpsc_entity_list', array($this, 'mergeEntityList'), 10, 2);
+        add_action('wpmc_form_saved', array($this, 'formSaved'), 10, 2);
+        add_filter('wpmc_form_validate', array($this, 'formValidate'), 10, 3);
+        add_action('wpmc_field_render', array($this, 'renderEntityFieldType'), 10, 2);
+        add_filter('wpmc_entity_find', array($this, 'mergeEntityFind'), 10, 2);
+        add_filter('wpmc_entity_list', array($this, 'mergeEntityList'), 10, 2);
     }
 
     private function getRelatedRows($field = [], $relationId) {
@@ -126,7 +126,7 @@ class WPMC_Field_Entity {
 
         // use this way to change default html template
         ob_start();
-        do_action("wpsc_entity_field_render_{$field->ref_entity}", null, $refEntity);
+        do_action("wpmc_entity_field_render_{$field->ref_entity}", null, $refEntity);
         $html = ob_get_clean();
         if ( !empty($html) ) {
             echo $html;

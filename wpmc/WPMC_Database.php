@@ -4,7 +4,7 @@ class WPMC_Database {
     private $tableSchema = [];
 
     public function init_hooks() {
-        // add_filter('wpsc_listing_query', array($this, 'listingQueryAlter'), 5, 2);
+        // add_filter('wpmc_listing_query', array($this, 'listingQueryAlter'), 5, 2);
     }
 
     public function getTableColumns($table) {
@@ -32,7 +32,7 @@ class WPMC_Database {
 
     public function doCreateTable($table, $fields) {
         global $wpdb;
-        global $wpsc_entities;
+        global $wpmc_entities;
         $stmt = [];
 
         foreach ( $fields as $col => $field ) {
@@ -47,7 +47,7 @@ class WPMC_Database {
                 break;
                 case 'belongs_to':
                     $type = 'INTEGER';
-                    $entity = $wpsc_entities[ $field['ref_entity'] ];
+                    $entity = $wpmc_entities[ $field['ref_entity'] ];
                     $refTable = $entity->tableName;
                     $ref = "REFERENCES {$refTable}(id)";
                 break;
@@ -80,11 +80,14 @@ class WPMC_Database {
         $versions = (array) get_site_option('wpbc_db_version');
 
         foreach ( $entities as $key => $entity ) {
-            $fieldsHash = md5(serialize($entity->fields));
+            if ( $entity instanceof WPMC_Entity ) {
+                $fieldsHash = md5(serialize($entity->fields));
 
-            if ( empty($versions[$key]) || ( $fieldsHash != $versions[$key] ) ) {
-                $versions[$key] = $fieldsHash;
-                $entity->install();
+                if ( empty($versions[$key]) || ( $fieldsHash != $versions[$key] ) ) {
+                    $versions[$key] = $fieldsHash;
+    
+                    $this->doCreateTable($entity->tableName, $entity->fields);
+                }
             }
         }
 

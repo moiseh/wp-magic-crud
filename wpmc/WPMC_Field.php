@@ -57,7 +57,7 @@ class WPMC_Field {
             $this->{$type}($options);
         }
         else {
-            do_action("wpsc_field_render", $this);
+            do_action("wpmc_field_render", $this);
         }
     }
 
