@@ -82,7 +82,7 @@ class WPMC_Entity {
 
     function can_create() {
         foreach ( $this->fields as $field ) {
-            if ( in_array('create', $field['flags']) ) {
+            if ( in_array('add', $field['flags']) ) {
                 return true;
             }
         }
@@ -114,7 +114,7 @@ class WPMC_Entity {
     function get_creatable_fields() {
         $fields = [];
         foreach ( $this->fields as $name => $field ) {
-            if ( in_array('create', $field['flags']) ) $fields[$name] = $field;
+            if ( in_array('add', $field['flags']) ) $fields[$name] = $field;
         }
         return $fields;
     }
@@ -122,7 +122,7 @@ class WPMC_Entity {
     function get_updatable_fields() {
         $fields = [];
         foreach ( $this->fields as $name => $field ) {
-            if ( in_array('update', $field['flags']) ) $fields[$name] = $field;
+            if ( in_array('edit', $field['flags']) ) $fields[$name] = $field;
         }
         return $fields;
     }

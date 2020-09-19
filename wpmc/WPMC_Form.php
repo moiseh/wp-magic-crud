@@ -137,8 +137,8 @@ class WPMC_Form {
         if ( !empty($this->entity->fields[$name]) ) {
             $field = $this->entity->fields[$name];
             $flags = $field['flags'];
-            $creating = in_array('create', $flags) && $this->entity->is_creating();
-            $updating = in_array('update', $flags) && $this->entity->is_updating();
+            $creating = in_array('add', $flags) && $this->entity->is_creating();
+            $updating = in_array('edit', $flags) && $this->entity->is_updating();
 
             if ( !$creating && !$updating ) {
                 return;
