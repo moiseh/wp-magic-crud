@@ -15,8 +15,13 @@ add_action('init', function(){
     $entityField = new WPMC_Field_Entity();
     $entityField->initHooks();
 
-    load_app_entities();
-    migrate_entities_db();
+    $entities = wpmc_load_app_entities();
+
+    // create entities database structure on-the-fly
+    if ( apply_filters('wpmc_create_tables', true) ) {
+        $db = new WPMC_Database();
+        $db->migrateEntityTables($entities);
+    }
 });
 
 

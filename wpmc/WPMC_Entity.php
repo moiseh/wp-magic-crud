@@ -1,5 +1,5 @@
 <?php
-
+if ( !class_exists('WPMC_Entity')) {
 class WPMC_Entity {
     public $fields = [];
     public $tableName;
@@ -222,7 +222,7 @@ class WPMC_Entity {
             $item[$this->entity->restrictLogged] = get_current_user_id();
         }
 
-        return apply_filters('wpmc_process_form_data', $item, $this);
+        return apply_filters('wpmc_process_save_data', $item, $this);
     }
 
     function save_db_data($item) {
@@ -232,7 +232,7 @@ class WPMC_Entity {
         $id = $db->saveData($this->tableName, $item);
 
         $item['id'] = $id;
-        do_action('wpmc_form_saved', $this, $item);
+        do_action('wpmc_data_saved', $this, $item);
 
         return $id;
     }
@@ -336,4 +336,5 @@ class WPMC_Entity {
         </div>
         <?php
     }
+}
 }

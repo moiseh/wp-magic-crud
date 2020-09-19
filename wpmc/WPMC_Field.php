@@ -1,5 +1,5 @@
 <?php
-
+if ( !class_exists('WPMC_Field')) {
 class WPMC_Field {
     public $type = 'text';
     public $required;
@@ -114,4 +114,5 @@ class WPMC_Field {
 
         return $attr;
     }
+}
 }

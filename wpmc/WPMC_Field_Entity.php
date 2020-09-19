@@ -1,8 +1,8 @@
 <?php
-
+if ( !class_exists('WPMC_Field_Entity')) {
 class WPMC_Field_Entity {
     function initHooks() {
-        add_action('wpmc_form_saved', array($this, 'formSaved'), 10, 2);
+        add_action('wpmc_data_saved', array($this, 'saveEntityData'), 10, 2);
         add_filter('wpmc_form_validate', array($this, 'formValidate'), 10, 3);
         add_action('wpmc_field_render', array($this, 'renderEntityFieldType'), 10, 2);
         add_filter('wpmc_entity_find', array($this, 'mergeEntityFind'), 10, 2);
@@ -82,7 +82,7 @@ class WPMC_Field_Entity {
         return $errors;
     }
 
-    function formSaved(WPMC_Entity $entity, $item) {
+    function saveEntityData(WPMC_Entity $entity, $item) {
         foreach ( $entity->fields as $name => $field ) {
             if ( $field['type'] == 'has_many' ) {
                 $fieldRefEntity = $field['ref_entity'];
@@ -248,4 +248,5 @@ class WPMC_Field_Entity {
 
         return ob_get_clean();
     }
+}
 }

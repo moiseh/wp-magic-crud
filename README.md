@@ -8,8 +8,8 @@ This plugin allows a developer to create fast CRUD's for WordPress admin panel. 
 * It's made to create generic CRUD's with little effort, priorizing convention over configuration. Not recommended to create complex admin panels
 * Generates automatically the database structure (can be deactivated, see *Overriding* section)
 * Uses `WP_List_Table` WordPress API to create the listings, so the result will be similar of the WordPress Posts and Pages admin sections
-* Optionally allow to filter by the current logged user for each entity / CRUD. May
-* Stuff and APIs included: Actions, Bulk Actions, Generic search, Pagination, Validation
+* Optionally allow to filter by the current logged user for each CRUD
+* Stuff and APIs included: Menus, Actions, Bulk Actions, Generic search, Pagination, Validation
 
 ## Installation Steps
 

@@ -1,5 +1,5 @@
 <?php
-
+if ( !class_exists('WPMC_Database')) {
 class WPMC_Database {
     private $tableSchema = [];
 
@@ -134,7 +134,7 @@ class WPMC_Database {
 
     public function buildMainQuery(WPMC_Entity $entity) {
 
-        $qb = qbuilder();
+        $qb = wpmc_query();
         $qb->select('*');
         $qb->from($entity->tableName);
 
@@ -144,4 +144,5 @@ class WPMC_Database {
 
         return $qb;
     }
+}
 }
