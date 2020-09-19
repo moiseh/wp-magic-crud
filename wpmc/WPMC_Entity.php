@@ -1,6 +1,6 @@
 <?php
 
-class WPMC_Entity extends WP_List_Table {
+class WPMC_Entity {
     public $tableName;
     public $restrictLogged = null;
     public $fields = [];

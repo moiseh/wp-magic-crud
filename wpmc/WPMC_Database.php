@@ -141,26 +141,4 @@ class WPMC_Database {
 
         return $qb;
     }
-
-    public function buildListingQuery(WPMC_Entity $entity) {
-        $perPage = $entity->get_per_page();
-        $sortCols = array_keys($entity->get_sortable_columns());
-        $sortableFields = array_keys($entity->get_sortable_fields());
-        $paged = isset($_REQUEST['paged']) ? max(0, intval($_REQUEST['paged']) - 1) : 0;
-        $orderBy = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], $sortCols)) ? $_REQUEST['orderby'] : $entity->defaultOrder;
-        $order = (isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc'))) ? $_REQUEST['order'] : 'asc';
-        $search = ( !empty($_REQUEST['s']) && $entity->is_listing() ) ? sanitize_text_field($_REQUEST['s']) : '';
-
-        $qb = $this->buildMainQuery($entity);
-
-        if ( !empty($search) ) {
-            $qb->search($sortableFields, $search);
-        }
-
-        $qb->orderBy($orderBy, $order);
-        $qb->limit($perPage);
-        $qb->offset($paged);
-
-        return $qb;
-    }
 }

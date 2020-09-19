@@ -135,10 +135,26 @@ class WPMC_List_Table extends WP_List_Table {
      * @return WPMC_Query_Builder
      */
     function build_listing_query() {
-        $db = new WPMC_Database();
-        $query = $db->buildListingQuery($this->entity);
+        $perPage = $this->get_per_page();
+        $sortCols = array_keys($this->get_sortable_columns());
+        $sortableFields = array_keys($this->entity->get_sortable_fields());
+        $paged = isset($_REQUEST['paged']) ? max(0, intval($_REQUEST['paged']) - 1) : 0;
+        $orderBy = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], $sortCols)) ? $_REQUEST['orderby'] : $this->entity->defaultOrder;
+        $order = (isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc'))) ? $_REQUEST['order'] : 'asc';
+        $search = ( !empty($_REQUEST['s']) && $this->entity->is_listing() ) ? sanitize_text_field($_REQUEST['s']) : '';
 
-        return apply_filters('wpsc_listing_query', $query, $this->entity);
+        $db = new WPMC_Database();
+        $qb = $db->buildMainQuery($this->entity);
+
+        if ( !empty($search) ) {
+            $qb->search($sortableFields, $search);
+        }
+
+        $qb->orderBy($orderBy, $order);
+        $qb->limit($perPage);
+        $qb->offset($paged);
+
+        return apply_filters('wpsc_listing_query', $qb, $this->entity);
     }
 
     function prepare_sql_listing($sql = array()) {
