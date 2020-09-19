@@ -34,6 +34,27 @@ if ( !function_exists('wpmc_load_app_entities')) {
     }
 }
 
+if ( !function_exists('wpmc_get_entities')) {
+    /**
+     * @return WPMC_Entity[]
+     */
+    function wpmc_get_entities() {
+        global $wpmc_entities;
+        return $wpmc_entities;
+    }
+}
+
+if ( !function_exists('wpmc_get_entity')) {
+    /**
+     * @return WPMC_Entity
+     */
+    function wpmc_get_entity($name) {
+        $entities = wpmc_get_entities();
+        return $entities[$name];
+    }
+}
+
+
 /*
 Description: Easily Show Flash Messages in WP Admin
 Version: 1

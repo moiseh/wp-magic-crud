@@ -14,7 +14,7 @@ class WPMC_Field_Entity {
 
         $fieldRefEntity = $field['ref_entity'];
         $fieldRefColumn = $field['ref_column'];
-        $refEntity = WPMC_Entity::instance($fieldRefEntity);
+        $refEntity = wpmc_get_entity($fieldRefEntity);
         
         $db = new WPMC_Database();
         $query = $db->buildMainQuery($refEntity);
@@ -47,7 +47,7 @@ class WPMC_Field_Entity {
             if ( $field['type'] == 'has_many' ) {
                 $fieldRefEntity = $field['ref_entity'];
                 $fieldRefColumn = $field['ref_column'];
-                $refEntity = WPMC_Entity::instance($fieldRefEntity);
+                $refEntity = wpmc_get_entity($fieldRefEntity);
 
                 foreach ( $parentRows as $key => $parentRow ) {
                     $relationId = $parentRow['id'];
@@ -73,7 +73,7 @@ class WPMC_Field_Entity {
         //         $fieldRefEntity = $field['ref_entity'];
 
         //         foreach ( $item[$name] as $lineItem ) {
-        //             $refEntity = WPMC_Entity::instance($fieldRefEntity);
+        //             $refEntity = wpmc_get_entity($fieldRefEntity);
         //             $errors += $refEntity->validate_form($lineItem);
         //         }
         //     }
@@ -91,7 +91,7 @@ class WPMC_Field_Entity {
 
                 if ( !empty($_REQUEST[$fieldRefEntity]) && ( $relationId > 0 ) ) {
                     $refItems = $_REQUEST[$fieldRefEntity];
-                    $refEntity = WPMC_Entity::instance($fieldRefEntity);
+                    $refEntity = wpmc_get_entity($fieldRefEntity);
                     $savedIds = [];
 
                     foreach ( $refItems as $index => $refItem ) {
@@ -120,7 +120,7 @@ class WPMC_Field_Entity {
 
         $templateHtml = $this->getEntityTemplate($field);
         $fieldRefEntity = $field->ref_entity;
-        $refEntity = WPMC_Entity::instance($fieldRefEntity);
+        $refEntity = wpmc_get_entity($fieldRefEntity);
         $addTitle = __("Adicionar {$refEntity->singular}");
         $refItems = !empty($field->item[$field->name]) ? $field->item[$field->name] : [];
 
@@ -180,7 +180,7 @@ class WPMC_Field_Entity {
     function getEntityTemplate(WPMC_Field $field, $item = []) {
         $entityName = $field->ref_entity;
         $refColumn = $field->ref_column;
-        $refEntity = WPMC_Entity::instance($entityName);
+        $refEntity = wpmc_get_entity($entityName);
         $refFields = $refEntity->fields;
 
         ob_start();
@@ -223,7 +223,7 @@ class WPMC_Field_Entity {
 
         $fieldRefEntity = $field['ref_entity'];
         $fieldRefColumn = $field['ref_column'];
-        $refEntity = WPMC_Entity::instance($fieldRefEntity);
+        $refEntity = wpmc_get_entity($fieldRefEntity);
         $listableFields = $refEntity->get_listable_fields();
         
         ob_start();

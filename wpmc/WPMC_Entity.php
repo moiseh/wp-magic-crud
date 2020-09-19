@@ -48,14 +48,6 @@ class WPMC_Entity {
         }
     }
 
-    /**
-     * @return WPMC_Entity
-     */
-    static function instance($name) {
-        global $wpmc_entities;
-        return $wpmc_entities[$name];
-    }
-
     function init() {
         add_action('admin_menu', array($this, 'admin_menu'));
     }

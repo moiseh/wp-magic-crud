@@ -31,8 +31,6 @@ class WPMC_Database {
     }
 
     public function doCreateTable($table, $fields) {
-        global $wpdb;
-        global $wpmc_entities;
         $stmt = [];
 
         foreach ( $fields as $col => $field ) {
@@ -47,7 +45,7 @@ class WPMC_Database {
                 break;
                 case 'belongs_to':
                     $type = 'INTEGER';
-                    $entity = $wpmc_entities[ $field['ref_entity'] ];
+                    $entity = wpmc_get_entity( $field['ref_entity'] );
                     $refTable = $entity->tableName;
                     $ref = "REFERENCES {$refTable}(id)";
                 break;
