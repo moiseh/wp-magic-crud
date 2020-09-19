@@ -1,16 +1,14 @@
 # Magic admin CRUD plugin for WordPress
 
-This plugin allows a developer to create fast CRUD's for WordPress admin panel. It was made for the author current CRUD needs, that can (an probably) be very different of yours.
-
-**This plugin is not ready to use**
+This plugin allows a developer to create fast CRUD's for WordPress admin panel. It was made for the author current CRUD needs, that may (an probably) be very different of yours.
 
 ## Overview
 
-* It's made to use with custom business database tables, does not use WP Post, Tags and/or media library
-* It's was not made to create complex admin panels, instead the idea is to create generic CRUD's with little effort (convention over configuration)
+* It's made to use with custom business database tables, does not use WP Post, Tags nor media library and similar WP API stuff
+* It's made to create generic CRUD's with little effort, priorizing convention over configuration. Not recommended to create complex admin panels
 * Generates automatically the database structure (can be deactivated, see *Overriding* section)
 * Uses `WP_List_Table` WordPress API to create the listings, so the result will be similar of the WordPress Posts and Pages admin sections
-* Allow to filter by the current logged user for each entity / CRUD
+* Optionally allow to filter by the current logged user for each entity / CRUD. May
 * Stuff and APIs included: Actions, Bulk Actions, Generic search, Pagination, Validation
 
 ## Installation Steps
@@ -137,3 +135,17 @@ By default the plugin tries to execute **CREATE TABLE** and/or change fields at 
 ```php
 add_action('wpmc_create_tables', '__return_false', 10, 2);
 ```
+
+## F.A.Q.
+
+### 1. Why another admin CRUD builder?
+
+I don't found any ready to use solution that fit exactly my needs. With this i can use or embeed a lightweight API to generate CRUDs in my another plugins or create some SAAS application. I also like to do it for the fun and deal with CRUDs.
+
+### 2. Why using so many arrays and not more PHP objects instead?
+
+With array to define the Entities and Fields you have much more flexibility, for example, to build a bridge and read it dynamically from some MySQL database or JSON files. It allows to do whatever you want and reduce the complexity in learning how create the Entity objects.
+
+### 3. This is a ready to use for production?
+
+No it's more like an experimental and hobbyist project. You can fork the project if it's useful to you and modify whatever you want. This was initially inspired in [WP Basic Crud](https://wordpress.org/plugins/wp-basic-crud/) plugin.

@@ -1,0 +1,58 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "9302c301632d0ccdb45c725a8958afd1",
+    "packages": [
+        {
+            "name": "stephenharris/wp-query-builder",
+            "version": "0.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/stephenharris/WP-Query-Builder.git",
+                "reference": "5191a8b58788158344f342ef2566567d170b9c87"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/stephenharris/WP-Query-Builder/zipball/5191a8b58788158344f342ef2566567d170b9c87",
+                "reference": "5191a8b58788158344f342ef2566567d170b9c87",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpcov": "^4.0.5",
+                "phpunit/phpunit": "^6",
+                "stephenharris/wp-test-library": "*",
+                "wp-cli/wp-cli": "^1.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "WPQueryBuilder\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Stephen Harris",
+                    "email": "contact@stephenharris.info"
+                }
+            ],
+            "description": "An expressive query builder for WordPress based on Laravel's Query Builder",
+            "time": "2018-07-25T15:58:52+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
+}

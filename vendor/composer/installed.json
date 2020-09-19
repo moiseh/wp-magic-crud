@@ -1,0 +1,43 @@
+[
+    {
+        "name": "stephenharris/wp-query-builder",
+        "version": "0.2.2",
+        "version_normalized": "0.2.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/stephenharris/WP-Query-Builder.git",
+            "reference": "5191a8b58788158344f342ef2566567d170b9c87"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/stephenharris/WP-Query-Builder/zipball/5191a8b58788158344f342ef2566567d170b9c87",
+            "reference": "5191a8b58788158344f342ef2566567d170b9c87",
+            "shasum": ""
+        },
+        "require-dev": {
+            "phpunit/phpcov": "^4.0.5",
+            "phpunit/phpunit": "^6",
+            "stephenharris/wp-test-library": "*",
+            "wp-cli/wp-cli": "^1.0.0"
+        },
+        "time": "2018-07-25T15:58:52+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "WPQueryBuilder\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Stephen Harris",
+                "email": "contact@stephenharris.info"
+            }
+        ],
+        "description": "An expressive query builder for WordPress based on Laravel's Query Builder"
+    }
+]
