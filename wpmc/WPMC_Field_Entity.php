@@ -16,8 +16,10 @@ class WPMC_Field_Entity {
         $fieldRefColumn = $field['ref_column'];
         $refEntity = WPMC_Entity::instance($fieldRefEntity);
         
-        $query = $refEntity->build_listing_query();
+        $db = new WPMC_Database();
+        $query = $db->buildMainQuery($refEntity);
         $query->where("{$refEntity->tableName}.{$fieldRefColumn}", "=", $relationId);
+
         $rows = $query->get();
 
         return $rows;

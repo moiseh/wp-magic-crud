@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/WPMC_List_Table.php';
 require_once __DIR__ . '/WPMC_Entity.php';
 require_once __DIR__ . '/WPMC_Field_Entity.php';
 require_once __DIR__ . '/WPMC_Field.php';
