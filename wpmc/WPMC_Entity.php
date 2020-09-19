@@ -80,11 +80,6 @@ class WPMC_Entity {
         }
 
         return false;
-
-        // $class = get_class($this);
-        // $refl = new ReflectionClass( $class );
-        // $method = $refl->hasMethod('render_form_content') ? $refl->getMethod('render_form_content') : null;
-        // return !empty($method) && $method->class == $class;
     }
 
     function current_page() {

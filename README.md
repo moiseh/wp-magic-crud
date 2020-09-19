@@ -49,7 +49,7 @@ See how to declare entities in your plugin [clicking here](https://github.com/mo
 By default the plugin tries to execute **CREATE TABLE** and/or change fields at runtime when the **fields** structure changes in the entities array, using WordPress `dbDelta()` function. If you want to disable this to have full control over database or by performance reasons, it's possible by doing:
 
 ```php
-add_action('wpmc_create_tables', '__return_false', 10, 2);
+add_filter('wpmc_create_tables', '__return_false', 10, 2);
 ```
 
 ## F.A.Q.
