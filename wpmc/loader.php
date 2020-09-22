@@ -11,8 +11,10 @@ if ( !class_exists('WPMC_Entity')) {
 if ( !class_exists('WPMC_Form')) {
     require_once __DIR__ . '/WPMC_Form.php';
 }
-if ( !class_exists('WPMC_Field_Entity')) {
-    require_once __DIR__ . '/WPMC_Field_Entity.php';
+if ( !class_exists('WPMC_Field_OneToMany')) {
+    require_once __DIR__ . '/WPMC_Field_OneToMany.php';
+    $fieldEntity = new WPMC_Field_OneToMany();
+    $fieldEntity->initHooks();
 }
 if ( !class_exists('WPMC_Field')) {
     require_once __DIR__ . '/WPMC_Field.php';
@@ -25,11 +27,6 @@ if ( !class_exists('WPMC_Query_Builder')) {
 }
 
 add_action('init', function(){
-
-    // load entity field type hooks
-    $entityField = new WPMC_Field_Entity();
-    $entityField->initHooks();
-
     $entities = wpmc_load_app_entities();
 
     // create entities database structure on-the-fly

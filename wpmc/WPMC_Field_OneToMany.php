@@ -1,5 +1,5 @@
 <?php
-class WPMC_Field_Entity {
+class WPMC_Field_OneToMany {
     function initHooks() {
         add_action('wpmc_data_saved', array($this, 'saveEntityData'), 10, 2);
         add_filter('wpmc_form_validate', array($this, 'formValidate'), 10, 3);
