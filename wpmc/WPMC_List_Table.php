@@ -55,6 +55,19 @@ class WPMC_List_Table extends WP_List_Table {
                             return $item[$refEntity];
                         }
                     break;
+                    case 'has_many':
+                        $refEntity = wpmc_get_entity($field['ref_entity']);
+                        $ids = wpmc_has_many_ids($field, $item['id']);
+                        $list = $refEntity->build_options($ids);
+
+                        $html = '<ul>';
+                        foreach ( $list as $label ) {
+                            $html .= "<li>- {$label}</li>";
+                        }
+                        $html .= '</ul>';
+
+                        return $html;
+                    break;
                 }
             }
         }

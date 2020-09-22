@@ -39,7 +39,11 @@ class WPMC_Field {
         $options = $this->options;
         $name = $this->name;
         $item = $this->item;
-        $value = !empty($item[$name]) && is_string($item[$name]) ? esc_attr($item[$name]) : $this->value;
+        $value = !empty($item[$name]) ? $item[$name] : $this->value;
+
+        if ( is_string($item[$name]) ) {
+            $value = esc_attr($item[$name]);
+        }
 
         $options['name'] = $name;
         $options['id'] = $name;
@@ -108,6 +112,25 @@ class WPMC_Field {
                 <option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo $label; ?></option>
             <?php endforeach; ?>
         </select>
+        <?php
+    }
+
+    private function checkbox_multi($options) {
+        $values = $options['checkbox_values'];
+        $attr = $this->build_attr($options);
+        $name = $options['name'];
+
+        ?>
+        <div class="checkboxes">
+        <?php foreach ( $values as $key => $label ): ?>
+            <?php $checked = ( in_array($key, $options['value']) ) ? 'checked' : ''; ?> 
+            <label for="<?php echo $key; ?>">
+                <input type="checkbox" name="<?php echo "{$name}[]"; ?>" value="<?php echo $key; ?>" <?php echo $checked; ?>/>
+                <?php echo $label; ?>
+            </label>
+            <br/>
+        <?php endforeach; ?>
+        </div>
         <?php
     }
 

@@ -54,6 +54,19 @@ if ( !function_exists('wpmc_get_entity')) {
     }
 }
 
+if ( !function_exists('wpmc_has_many_ids')) {
+    function wpmc_has_many_ids($field, $leftId) {
+        global $wpdb;
+        $rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$field['pivot_table']} WHERE {$field['pivot_left']} = %d", $leftId), ARRAY_A);
+        $list = [];
+
+        foreach ( $rows as $_row ) {
+            $list[] = $_row[ $field['pivot_right'] ];
+        }
+
+        return $list;
+    }
+}
 
 /*
 Description: Easily Show Flash Messages in WP Admin

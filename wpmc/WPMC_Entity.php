@@ -137,10 +137,16 @@ class WPMC_Entity {
         return $fields;
     }
 
-    function build_options() {
+    function build_options($ids = []) {
         global $wpdb;
 
-        $rows = $wpdb->get_results(  "SELECT id,{$this->displayField} FROM {$this->tableName} ORDER BY {$this->defaultOrder}", ARRAY_A  );
+        $sql = " SELECT id, {$this->displayField} FROM {$this->tableName} ";
+        if ( !empty($ids) ) {
+            $sql .= " WHERE id IN (" . implode(',', $ids) . ")";
+        }
+        $sql .= " ORDER BY {$this->defaultOrder }";
+
+        $rows = $wpdb->get_results( $sql, ARRAY_A  );
         $opts = [];
         
         foreach ( $rows as $row ) {
@@ -204,6 +210,14 @@ class WPMC_Entity {
         $this->check_can_manage($id);
         $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$this->tableName} WHERE id = %d", $id), ARRAY_A);
 
+        foreach ( $this->fields as $name => $field ) {
+            switch($field['type']) {
+                case 'has_many':
+                    $row[$name] = wpmc_has_many_ids($field, $id);
+                break;
+            }
+        }
+
         return apply_filters('wpmc_entity_find', $row, $this);
     }
 
@@ -225,10 +239,29 @@ class WPMC_Entity {
     }
 
     function save_db_data($item) {
+        global $wpdb;
+
         $item = $this->process_save_data($item);
 
         $db = new WPMC_Database();
         $id = $db->saveData($this->tableName, $item);
+
+        foreach ( $this->fields as $name => $field ) {
+            switch($field['type']) {
+                case 'has_many':
+                    $db = new WPMC_Database();
+
+                    $wpdb->delete($field['pivot_table'], array($field['pivot_left'] => $id));
+
+                    foreach ( (array) $item[$name] as $referenceId ) {
+                        $db->saveData( $field['pivot_table'], [
+                            $field['pivot_left'] => $id,
+                            $field['pivot_right'] => $referenceId,
+                        ] );
+                    }
+                break;
+            }
+        }
 
         $item['id'] = $id;
         do_action('wpmc_data_saved', $this, $item);

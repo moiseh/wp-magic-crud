@@ -41,3 +41,15 @@ div.form3bc input {
 .wad-rules-table-container {
     padding-bottom: 5px;
 }
+
+.checkboxes {
+    margin-left: 20px;
+}
+
+.checkboxes label {
+    padding: 3px;
+}
+
+.form-meta-box input, textarea {
+    width: auto;
+}
