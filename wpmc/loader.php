@@ -20,6 +20,11 @@ if ( !class_exists('WPMC_Field_HasMany')) {
     $fieldHasMany = new WPMC_Field_HasMany();
     $fieldHasMany->initHooks();
 }
+if ( !class_exists('WPMC_Field_BelongsTo')) {
+    require_once __DIR__ . '/WPMC_Field_BelongsTo.php';
+    $fieldBelongsTo = new WPMC_Field_BelongsTo();
+    $fieldBelongsTo->initHooks();
+}
 if ( !class_exists('WPMC_Field')) {
     require_once __DIR__ . '/WPMC_Field.php';
 }

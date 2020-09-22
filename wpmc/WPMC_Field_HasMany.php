@@ -33,8 +33,7 @@ class WPMC_Field_HasMany {
         foreach ( $entity->fields as $name => $field ) {
             if ( $field['type'] == 'has_many' ) {
                 $db = new WPMC_Database();
-
-                $wpdb->delete($field['pivot_table'], array($field['pivot_left'] => $id));
+                $wpdb->delete($field['pivot_table'], array($field['pivot_left'] => $item['id']));
 
                 foreach ( (array) $item[$name] as $referenceId ) {
                     $db->saveData( $field['pivot_table'], [

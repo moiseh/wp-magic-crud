@@ -136,26 +136,20 @@ class WPMC_Database {
         $qb = wpmc_query();
         $qb->from($entity->tableName);
 
-        $selects = ["{$entity->tableName}.id"];
+        $selects = ['id' => "{$entity->tableName}.id"];
 
         foreach ( $entity->fields as $name => $field ) {
             switch($field['type']) {
-                case 'belongs_to':
-                    $refEntity = wpmc_get_entity($field['ref_entity']);
-                    $selects[] = "{$entity->tableName}.{$name}";
-                    $selects[] = "{$refEntity->tableName}.{$refEntity->displayField} AS {$field['ref_entity']}";
-                    $qb->leftJoin($refEntity->tableName, $name, '=', "{$refEntity->tableName}.id");
-                break;
                 case 'has_many':
                 case 'one_to_many':
                 break;
                 default:
-                    $selects[] = "{$entity->tableName}.{$name}";
+                    $selects[$name] = "{$entity->tableName}.{$name}";
                 break;
             }
         }
 
-        $qb->select($selects);
+        $qb->select( apply_filters('wpmc_query_selects', $selects, $qb, $entity) );
 
         return apply_filters('wpmc_entity_query', $qb, $entity);
     }

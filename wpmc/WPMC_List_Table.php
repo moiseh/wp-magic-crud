@@ -43,20 +43,6 @@ class WPMC_List_Table extends WP_List_Table {
             $actions = $this->get_actions($item);
             return sprintf('%s %s', $item['name'], $this->row_actions($actions));
         }
-        else {
-            $field = !empty($this->entity->fields[$col]) ? $this->entity->fields[$col] : null;
-
-            if ( !empty($field) ) {
-                switch($field['type']) {
-                    case 'belongs_to':
-                        $refEntity = $field['ref_entity'];
-                        if ( !empty($item[$refEntity]) ) {
-                            return $item[$refEntity];
-                        }
-                    break;
-                }
-            }
-        }
 
         return $item[$col];
     }
