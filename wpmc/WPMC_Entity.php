@@ -137,6 +137,19 @@ class WPMC_Entity {
         return $fields;
     }
 
+    function build_options() {
+        global $wpdb;
+
+        $rows = $wpdb->get_results(  "SELECT id,{$this->displayField} FROM {$this->tableName} ORDER BY {$this->defaultOrder}", ARRAY_A  );
+        $opts = [];
+        
+        foreach ( $rows as $row ) {
+            $opts[ $row['id'] ] = $row[$this->displayField];
+        }
+
+        return $opts;
+    }
+
     function redirect($url) {
         // wp_safe_redirect($url);
         // echo "<script>window.location.href = '{$url}';</script>";

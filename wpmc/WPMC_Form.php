@@ -143,10 +143,22 @@ class WPMC_Form {
                 return;
             }
 
+
+            switch($field['type']) {
+                case 'belongs_to':
+                    if ( empty($options['select_values']) ) {
+                        $refEntity = wpmc_get_entity($field['ref_entity']);
+                        $field['type'] = 'select';
+                        $options['select_values'] = $refEntity->build_options();
+                    }
+                break;
+            }
+
             $obj = new WPMC_Field($field);
             $obj->name = $name;
             $obj->item = $this->get_editing_record();
             $obj->options = $options;
+
             $obj->render();
         }
     }

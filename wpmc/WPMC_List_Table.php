@@ -44,6 +44,20 @@ class WPMC_List_Table extends WP_List_Table {
             $actions = $this->get_actions($item);
             return sprintf('%s %s', $item['name'], $this->row_actions($actions));
         }
+        else {
+            $field = !empty($this->entity->fields[$col]) ? $this->entity->fields[$col] : null;
+
+            if ( !empty($field) ) {
+                switch($field['type']) {
+                    case 'belongs_to':
+                        $refEntity = $field['ref_entity'];
+                        if ( !empty($item[$refEntity]) ) {
+                            return $item[$refEntity];
+                        }
+                    break;
+                }
+            }
+        }
 
         return $item[$col];
     }
@@ -134,6 +148,7 @@ class WPMC_List_Table extends WP_List_Table {
         $perPage = $this->get_per_page();
         $sortCols = array_keys($this->get_sortable_columns());
         $sortableFields = array_keys($this->entity->get_sortable_fields());
+        $tableName = $this->entity->tableName;
         $paged = isset($_REQUEST['paged']) ? max(0, intval($_REQUEST['paged']) - 1) : 0;
         $orderBy = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], $sortCols)) ? $_REQUEST['orderby'] : $this->entity->defaultOrder;
         $order = (isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc'))) ? $_REQUEST['order'] : 'asc';
@@ -146,7 +161,7 @@ class WPMC_List_Table extends WP_List_Table {
             $qb->search($sortableFields, $search);
         }
 
-        $qb->orderBy($orderBy, $order);
+        $qb->orderBy("{$tableName}.{$orderBy}", $order);
         $qb->limit($perPage);
         $qb->offset($paged);
 

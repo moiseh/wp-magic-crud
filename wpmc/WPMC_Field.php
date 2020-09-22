@@ -97,12 +97,26 @@ class WPMC_Field {
         <?php
     }
 
+    private function select($options) {
+        $values = $options['select_values'];
+        $attr = $this->build_attr($options);
+
+        ?>
+        <select <?php echo $attr; ?>>
+            <?php foreach ( $values as $key => $label ): ?>
+                <?php $selected = ( $key == $options['value'] ) ? 'selected' : ''; ?> 
+                <option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo $label; ?></option>
+            <?php endforeach; ?>
+        </select>
+        <?php
+    }
+
     private function build_attr($options = []) {
         $required = !empty($options['required']) && $options['required'] ? 'required' : '';
         $attr = '';
         
         foreach ( $options as $key => $opt ) {
-            if ( in_array($key, ['required'])) {
+            if ( in_array($key, ['required']) || is_array($opt) ) {
                 continue;
             }
 

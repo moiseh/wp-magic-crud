@@ -144,8 +144,29 @@ class WPMC_Database {
     public function buildMainQuery(WPMC_Entity $entity) {
 
         $qb = wpmc_query();
-        $qb->select('*');
         $qb->from($entity->tableName);
+
+        $selects = ["{$entity->tableName}.id"];
+
+        foreach ( $entity->fields as $name => $field ) {
+            switch($field['type']) {
+                case 'belongs_to':
+                    $refEntity = wpmc_get_entity($field['ref_entity']);
+                    $selects[] = "{$entity->tableName}.{$name}";
+                    $selects[] = "{$refEntity->tableName}.{$refEntity->displayField} AS {$field['ref_entity']}";
+                    $qb->leftJoin($refEntity->tableName, $name, '=', "{$refEntity->tableName}.id");
+                break;
+                case 'has_many':
+                case 'one_to_many':
+                break;
+                default:
+                    $selects[] = "{$entity->tableName}.{$name}";
+                break;
+            }
+        }
+
+
+        $qb->select($selects);
 
         if ( !empty($entity->restrictLogged) ) { //  && !$this->is_admin()
             $qb->where("{$entity->tableName}.{$entity->restrictLogged}", '=', get_current_user_id()); 
