@@ -1,7 +1,4 @@
 <?php
-
-if ( !class_exists('WPMC_List_Table')) {
-
 require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
 require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 require_once(ABSPATH . 'wp-admin/includes/template.php');
@@ -155,6 +152,4 @@ class WPMC_List_Table extends WP_List_Table {
 
         return apply_filters('wpmc_listing_query', $qb, $this->entity);
     }
-}
-
 }

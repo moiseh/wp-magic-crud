@@ -1,5 +1,4 @@
 <?php
-if ( !class_exists('WPMC_Field_Entity')) {
 class WPMC_Field_Entity {
     function initHooks() {
         add_action('wpmc_data_saved', array($this, 'saveEntityData'), 10, 2);
@@ -33,7 +32,7 @@ class WPMC_Field_Entity {
         }
 
         foreach ( $entity->fields as $name => $field ) {
-            if ( $field['type'] == 'has_many' ) {
+            if ( $field['type'] == 'one_to_many' ) {
                 $relationId = $item['id'];
                 $item[$name] = $this->getRelatedRows($field, $relationId);
             }
@@ -44,7 +43,7 @@ class WPMC_Field_Entity {
 
     function mergeEntityList($parentRows, WPMC_Entity $entity) {
         foreach ( $entity->get_listable_fields() as $name => $field ) {
-            if ( $field['type'] == 'has_many' ) {
+            if ( $field['type'] == 'one_to_many' ) {
                 $fieldRefEntity = $field['ref_entity'];
                 $fieldRefColumn = $field['ref_column'];
                 $refEntity = wpmc_get_entity($fieldRefEntity);
@@ -84,7 +83,7 @@ class WPMC_Field_Entity {
 
     function saveEntityData(WPMC_Entity $entity, $item) {
         foreach ( $entity->fields as $name => $field ) {
-            if ( $field['type'] == 'has_many' ) {
+            if ( $field['type'] == 'one_to_many' ) {
                 $fieldRefEntity = $field['ref_entity'];
                 $fieldRefColumn = $field['ref_column'];
                 $relationId = $item['id'];
@@ -114,7 +113,7 @@ class WPMC_Field_Entity {
     }
 
     function renderEntityFieldType(WPMC_Field $field) {
-        if ( $field->type != 'has_many' ) {
+        if ( $field->type != 'one_to_many' ) {
             return;
         }
 
@@ -248,5 +247,4 @@ class WPMC_Field_Entity {
 
         return ob_get_clean();
     }
-}
 }

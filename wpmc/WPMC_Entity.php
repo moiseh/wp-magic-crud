@@ -1,5 +1,4 @@
 <?php
-if ( !class_exists('WPMC_Entity')) {
 class WPMC_Entity {
     public $fields = [];
     public $tableName;
@@ -323,5 +322,4 @@ class WPMC_Entity {
         </div>
         <?php
     }
-}
 }

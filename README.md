@@ -32,7 +32,8 @@ Alternativately you can download using the following link: https://github.com/mo
 * email
 * integer
 * belongs_to (references another entity)
-* has_many (creates a repeatable table linking to another entity)
+* one_to_many (creates a repeatable table linking to multiple entity)
+* has_many (creates multi-selectable checkboxes)
 
 ## How to use
 
@@ -46,7 +47,7 @@ See how to declare entities in your plugin [clicking here](https://github.com/mo
 
 ### 2. Overriding
 
-By default the plugin tries to execute **CREATE TABLE** and/or change fields at runtime when the **fields** structure changes in the entities array, using WordPress `dbDelta()` function. If you want to disable this to have full control over database or by performance reasons, it's possible by doing:
+By default the plugin will try to execute **CREATE TABLE** and/or change fields at runtime when the **fields** structure changes in the entities array, using WordPress `dbDelta()` function. If you want to disable this to have full control over database or by performance reasons, it's possible by doing:
 
 ```php
 add_filter('wpmc_create_tables', '__return_false', 10, 2);
@@ -56,7 +57,7 @@ add_filter('wpmc_create_tables', '__return_false', 10, 2);
 
 ### 1. Why another admin CRUD builder?
 
-I don't found any ready to use solution that fit exactly my needs. With this i can use or embeed a lightweight API to generate CRUDs in my another plugins or create some SAAS application. I also like to do it for the fun and deal with CRUDs.
+I didn't found any ready to use solution that fit exactly my needs. With this i can use or embeed a lightweight API to generate CRUDs in my another plugins or create some SAAS application. I also like to do it for the fun and deal with CRUDs.
 
 ### 2. Why using so many arrays and not more PHP objects instead?
 
@@ -64,4 +65,4 @@ With array to define the Entities and Fields you have much more flexibility, for
 
 ### 3. This is a ready to use for production?
 
-No it's more like an experimental and hobbyist project. You can fork the project if it's useful to you and modify whatever you want. This was initially inspired in [WP Basic Crud](https://wordpress.org/plugins/wp-basic-crud/) plugin.
+No it's more like a hobbyist project, not ready for real world uses. You can fork the project if it's useful to you and modify whatever you want. This was initially inspired in [WP Basic Crud](https://wordpress.org/plugins/wp-basic-crud/) plugin.

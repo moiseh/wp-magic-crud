@@ -1,5 +1,4 @@
 <?php
-if ( !class_exists('WPMC_Database')) {
 class WPMC_Database {
     private $tableSchema = [];
 
@@ -49,8 +48,20 @@ class WPMC_Database {
                     $refTable = $entity->tableName;
                     $ref = "REFERENCES {$refTable}(id)";
                 break;
-                case 'has_many':
+                case 'one_to_many':
                     continue;
+                break;
+                case 'has_many':
+                    if ( !empty($field['pivot_table']) && !empty($field['pivot_left']) && !empty($field['pivot_right']) ) {
+                        $sql = "CREATE TABLE {$field['pivot_table']} (
+                            id int(11) NOT NULL AUTO_INCREMENT,
+                            `{$field['pivot_left']}` INTEGER,
+                            `{$field['pivot_right']}` INTEGER,
+                            PRIMARY KEY  (id)
+                        );";
+
+                        dbDelta($sql);
+                    }
                 break;
                 default:
                     $type = 'VARCHAR(255)';
@@ -142,5 +153,4 @@ class WPMC_Database {
 
         return $qb;
     }
-}
 }

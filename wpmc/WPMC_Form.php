@@ -1,5 +1,4 @@
 <?php
-if ( !class_exists('WPMC_Form')) {
 class WPMC_Form {
     private $editingRecord = null;
 
@@ -151,5 +150,4 @@ class WPMC_Form {
             $obj->render();
         }
     }
-}
 }

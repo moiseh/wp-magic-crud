@@ -6,7 +6,6 @@ use WPQueryBuilder\BetweenWhereClause;
 use WPQueryBuilder\WhereClause;
 use WPQueryBuilder\WhereLikeClause;
 
-if ( !class_exists('WPMC_Query_Builder') ) {
 class WPMC_Query_Builder {
 
 	const SELECT = 'SELECT';
@@ -502,6 +501,4 @@ class WPMC_Query_Builder {
 
 		return sprintf("LIMIT %d", $this->limit);
 	}
-
-}
 }
