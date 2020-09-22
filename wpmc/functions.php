@@ -68,6 +68,12 @@ if ( !function_exists('wpmc_has_many_ids')) {
     }
 }
 
+if ( !function_exists('wpmc_current_entity')) {
+    function wpmc_current_entity() {
+        return !empty($_REQUEST['page']) ? $_REQUEST['page'] : null;
+    }
+}
+
 /*
 Description: Easily Show Flash Messages in WP Admin
 Version: 1

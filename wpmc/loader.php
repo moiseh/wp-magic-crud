@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . '/functions.php';
 
-
 if ( !class_exists('WPMC_List_Table')) {
     require_once __DIR__ . '/WPMC_List_Table.php';
 }
@@ -34,6 +33,8 @@ add_action('init', function(){
         $db = new WPMC_Database();
         $db->migrateEntityTables($entities);
     }
+
+    do_action('wpmc_loaded');
 });
 
 

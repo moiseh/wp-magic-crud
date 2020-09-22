@@ -165,13 +165,8 @@ class WPMC_Database {
             }
         }
 
-
         $qb->select($selects);
 
-        if ( !empty($entity->restrictLogged) ) { //  && !$this->is_admin()
-            $qb->where("{$entity->tableName}.{$entity->restrictLogged}", '=', get_current_user_id()); 
-        }
-
-        return $qb;
+        return apply_filters('wpmc_entity_query', $qb, $entity);
     }
 }

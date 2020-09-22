@@ -7,7 +7,6 @@ class WPMC_Entity {
     public $identifier;
     public $singular;
     public $plural;
-    public $restrictLogged;
 
     function __construct($options = array()) {
         if ( !empty($options['fields']) ) {
@@ -41,10 +40,6 @@ class WPMC_Entity {
         if ( !empty($options['display_field']) ) {
             $this->displayField = $options['display_field'];
         }
-
-        if ( !empty($options['user_id']) ) {
-            $this->restrictLogged = $options['user_id'];
-        }
     }
 
     function init() {
@@ -52,7 +47,7 @@ class WPMC_Entity {
     }
 
     function identifier() {
-        return strtolower($this->identifier);
+        return $this->identifier;
     }
 
     function form_page_identifier() {
@@ -169,32 +164,14 @@ class WPMC_Entity {
         }
     }
 
-    function is_admin() {
-        return current_user_can('activate_plugins');
-    }
-
     function can_manage($ids) {
         global $wpdb;
-
-        // when user is admin, allow manage all IDs
-        // if ( $this->is_admin() ) {
-        //     return true;
-        // }
-
-        // when user is NOT admin, and entity dont have restrict column
-        // if ( empty($this->restrictLogged) ) {
-        //     return false;
-        // }
 
         if ( !is_array($ids) ) {
             $ids = [$ids];
         }
 
-        $uid = get_current_user_id();
-        $ids = implode(',', $ids);
-        $ungranteds = $wpdb->get_var("SELECT COUNT(id) FROM {$this->tableName} WHERE id IN({$ids}) AND user_id <> {$uid}");
-
-        return !( $ungranteds > 0 );
+        return apply_filters('wpmc_can_manage', $this, $ids);
     }
 
     function check_can_manage($ids) {
@@ -203,6 +180,11 @@ class WPMC_Entity {
         if ( !$canManage ) {
             throw new Exception('You cannot edit other users id');
         }
+    }
+
+    function has_column($column) {
+        $db = new WPMC_Database();
+        return $db->tableHasColumn($this->tableName, $column);
     }
 
     function find_by_id($id) {
@@ -231,10 +213,6 @@ class WPMC_Entity {
     }
 
     function process_save_data($item) {
-        if ( !empty($this->entity->restrictLogged) ) {
-            $item[$this->entity->restrictLogged] = get_current_user_id();
-        }
-
         return apply_filters('wpmc_process_save_data', $item, $this);
     }
 
