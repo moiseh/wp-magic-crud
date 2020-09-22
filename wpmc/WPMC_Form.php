@@ -144,17 +144,10 @@ class WPMC_Form {
 
             switch($field['type']) {
                 case 'belongs_to':
-                    if ( empty($options['select_values']) ) {
+                    if ( empty($options['choices']) ) {
                         $refEntity = wpmc_get_entity($field['ref_entity']);
                         $field['type'] = 'select';
-                        $options['select_values'] = $refEntity->build_options();
-                    }
-                break;
-                case 'has_many':
-                    if ( empty($options['checkbox_values']) ) {
-                        $refEntity = wpmc_get_entity($field['ref_entity']);
-                        $field['type'] = 'checkbox_multi';
-                        $options['checkbox_values'] = $refEntity->build_options();
+                        $options['choices'] = $refEntity->build_options();
                     }
                 break;
             }

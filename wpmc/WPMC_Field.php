@@ -60,11 +60,11 @@ class WPMC_Field {
             $this->{$type}($options);
         }
         else {
-            do_action("wpmc_field_render", $this);
+            do_action('wpmc_field_render', $this, $options);
         }
     }
 
-    private function text($options) {
+    public function text($options) {
         $attr = $this->build_attr($options);
 
         ?>
@@ -72,7 +72,7 @@ class WPMC_Field {
         <?php
     }
 
-    private function email($options) {
+    public function email($options) {
         $attr = $this->build_attr($options);
 
         ?>
@@ -80,7 +80,7 @@ class WPMC_Field {
         <?php
     }
 
-    private function integer($options) {
+    public function integer($options) {
         $attr = $this->build_attr($options);
 
         ?>
@@ -88,7 +88,7 @@ class WPMC_Field {
         <?php
     }
 
-    private function textarea($options) {
+    public function textarea($options) {
         unset($options['value']);
         if ( empty($options['cols']) ) $options['cols'] = 85;
         if ( empty($options['rows']) ) $options['rows'] = 3;
@@ -101,8 +101,8 @@ class WPMC_Field {
         <?php
     }
 
-    private function select($options) {
-        $values = $options['select_values'];
+    public function select($options) {
+        $values = $options['choices'];
         $attr = $this->build_attr($options);
 
         ?>
@@ -115,10 +115,9 @@ class WPMC_Field {
         <?php
     }
 
-    private function checkbox_multi($options) {
-        $list = $options['checkbox_values'];
+    public function checkbox_multi($options) {
+        $list = $options['choices'];
         $values = !empty($options['value']) ? $options['value'] : [];
-        $attr = $this->build_attr($options);
         $name = $options['name'];
 
         ?>

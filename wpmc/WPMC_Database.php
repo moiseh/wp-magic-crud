@@ -36,32 +36,20 @@ class WPMC_Database {
             $ref = '';
 
             switch($field['type']) {
-                case 'textarea':
-                    $type = 'TEXT';
-                break;
-                case 'integer':
-                    $type = 'INTEGER';
-                break;
+                case 'one_to_many':
+                case 'has_many':
+                    break;
                 case 'belongs_to':
                     $type = 'INTEGER';
                     $entity = wpmc_get_entity( $field['ref_entity'] );
                     $refTable = $entity->tableName;
                     $ref = "REFERENCES {$refTable}(id)";
                 break;
-                case 'one_to_many':
-                    continue;
+                case 'textarea':
+                    $type = 'TEXT';
                 break;
-                case 'has_many':
-                    if ( !empty($field['pivot_table']) && !empty($field['pivot_left']) && !empty($field['pivot_right']) ) {
-                        $sql = "CREATE TABLE {$field['pivot_table']} (
-                            id int(11) NOT NULL AUTO_INCREMENT,
-                            `{$field['pivot_left']}` INTEGER,
-                            `{$field['pivot_right']}` INTEGER,
-                            PRIMARY KEY  (id)
-                        );";
-
-                        dbDelta($sql);
-                    }
+                case 'integer':
+                    $type = 'INTEGER';
                 break;
                 default:
                     $type = 'VARCHAR(255)';
@@ -82,6 +70,8 @@ class WPMC_Database {
         // var_dump($sql); exit;
 
         dbDelta($sql);
+
+        do_action('wpmc_db_creating', $table, $fields);
     }
 
 

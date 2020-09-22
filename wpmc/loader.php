@@ -15,6 +15,11 @@ if ( !class_exists('WPMC_Field_OneToMany')) {
     $fieldEntity = new WPMC_Field_OneToMany();
     $fieldEntity->initHooks();
 }
+if ( !class_exists('WPMC_Field_HasMany')) {
+    require_once __DIR__ . '/WPMC_Field_HasMany.php';
+    $fieldHasMany = new WPMC_Field_HasMany();
+    $fieldHasMany->initHooks();
+}
 if ( !class_exists('WPMC_Field')) {
     require_once __DIR__ . '/WPMC_Field.php';
 }

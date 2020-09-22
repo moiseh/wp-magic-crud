@@ -194,15 +194,6 @@ class WPMC_Entity {
         global $wpdb;
         $this->check_can_manage($id);
         $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$this->tableName} WHERE id = %d", $id), ARRAY_A);
-
-        foreach ( $this->fields as $name => $field ) {
-            switch($field['type']) {
-                case 'has_many':
-                    $row[$name] = wpmc_has_many_ids($field, $id);
-                break;
-            }
-        }
-
         return apply_filters('wpmc_entity_find', $row, $this);
     }
 
@@ -220,29 +211,10 @@ class WPMC_Entity {
     }
 
     function save_db_data($item) {
-        global $wpdb;
-
         $item = $this->process_save_data($item);
 
         $db = new WPMC_Database();
         $id = $db->saveData($this->tableName, $item);
-
-        foreach ( $this->fields as $name => $field ) {
-            switch($field['type']) {
-                case 'has_many':
-                    $db = new WPMC_Database();
-
-                    $wpdb->delete($field['pivot_table'], array($field['pivot_left'] => $id));
-
-                    foreach ( (array) $item[$name] as $referenceId ) {
-                        $db->saveData( $field['pivot_table'], [
-                            $field['pivot_left'] => $id,
-                            $field['pivot_right'] => $referenceId,
-                        ] );
-                    }
-                break;
-            }
-        }
 
         $item['id'] = $id;
         do_action('wpmc_data_saved', $this, $item);
