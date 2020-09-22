@@ -191,7 +191,7 @@ class WPMC_Field_Entity {
             <?php
             foreach ( $refFields as $name => $field ) {
                 // do not render the relationship column
-                if ( $name == $refColumn ) {
+                if ( $name == $refColumn || in_array($field['type'], ['has_many', 'one_to_many']) ) {
                     continue;
                 }
 

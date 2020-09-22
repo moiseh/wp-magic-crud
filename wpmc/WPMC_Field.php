@@ -41,8 +41,8 @@ class WPMC_Field {
         $item = $this->item;
         $value = !empty($item[$name]) ? $item[$name] : $this->value;
 
-        if ( is_string($item[$name]) ) {
-            $value = esc_attr($item[$name]);
+        if ( is_string($value) ) {
+            $value = esc_attr($value);
         }
 
         $options['name'] = $name;
