@@ -116,14 +116,15 @@ class WPMC_Field {
     }
 
     private function checkbox_multi($options) {
-        $values = $options['checkbox_values'];
+        $list = $options['checkbox_values'];
+        $values = !empty($options['value']) ? $options['value'] : [];
         $attr = $this->build_attr($options);
         $name = $options['name'];
 
         ?>
         <div class="checkboxes">
-        <?php foreach ( $values as $key => $label ): ?>
-            <?php $checked = ( in_array($key, $options['value']) ) ? 'checked' : ''; ?> 
+        <?php foreach ( $list as $key => $label ): ?>
+            <?php $checked = ( in_array($key, $values) ) ? 'checked' : ''; ?> 
             <label for="<?php echo $key; ?>">
                 <input type="checkbox" name="<?php echo "{$name}[]"; ?>" value="<?php echo $key; ?>" <?php echo $checked; ?>/>
                 <?php echo $label; ?>

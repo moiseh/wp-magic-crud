@@ -66,16 +66,6 @@ class WPMC_Entity {
         return get_admin_url(get_current_blog_id(), 'admin.php?page='.$this->form_page_identifier());
     }
 
-    function can_create() {
-        foreach ( $this->fields as $field ) {
-            if ( in_array('add', $field['flags']) ) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     function current_page() {
         return !empty($_REQUEST['page']) ? $_REQUEST['page'] : '';
     }
@@ -92,10 +82,22 @@ class WPMC_Entity {
         return ( $this->current_page() == $this->identifier() );
     }
 
+    function can_create() {
+        $creatableFields = array_keys($this->get_creatable_fields());
+
+        foreach ( $this->fields as $name => $field ) {
+            if ( in_array($name, $creatableFields) ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     function get_creatable_fields() {
         $fields = [];
         foreach ( $this->fields as $name => $field ) {
-            if ( in_array('add', $field['flags']) ) $fields[$name] = $field;
+            if ( empty($field['restrict_to']) || in_array('add', $field['restrict_to']) ) $fields[$name] = $field;
         }
         return $fields;
     }
@@ -103,7 +105,7 @@ class WPMC_Entity {
     function get_updatable_fields() {
         $fields = [];
         foreach ( $this->fields as $name => $field ) {
-            if ( in_array('edit', $field['flags']) ) $fields[$name] = $field;
+            if ( empty($field['restrict_to']) || in_array('edit', $field['restrict_to']) ) $fields[$name] = $field;
         }
         return $fields;
     }
@@ -111,15 +113,16 @@ class WPMC_Entity {
     function get_listable_fields() {
         $fields = [];
         foreach ( $this->fields as $name => $field ) {
-            if ( in_array('list', $field['flags']) ) $fields[$name] = $field;
+            if ( empty($field['restrict_to']) || in_array('list', $field['restrict_to']) ) $fields[$name] = $field;
         }
         return $fields;
     }
 
     function get_sortable_fields() {
+        $listableFields = array_keys($this->get_listable_fields());
         $fields = [];
         foreach ( $this->fields as $name => $field ) {
-            if ( in_array('sort', $field['flags']) && in_array('list', $field['flags']) ) $fields[$name] = $field;
+            if ( empty($field['restrict_to']) || in_array('sort', $field['restrict_to']) && in_array($name, $listableFields) ) $fields[$name] = $field;
         }
         return $fields;
     }
@@ -127,7 +130,7 @@ class WPMC_Entity {
     function get_view_fields() {
         $fields = [];
         foreach ( $this->fields as $name => $field ) {
-            if ( in_array('view', $field['flags']) ) $fields[$name] = $field;
+            if ( empty($field['restrict_to']) || in_array('view', $field['restrict_to']) ) $fields[$name] = $field;
         }
         return $fields;
     }

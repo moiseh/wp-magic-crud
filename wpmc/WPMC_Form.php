@@ -135,9 +135,8 @@ class WPMC_Form {
     function render_field($name, $options = []) {
         if ( !empty($this->entity->fields[$name]) ) {
             $field = $this->entity->fields[$name];
-            $flags = $field['flags'];
-            $creating = in_array('add', $flags) && $this->entity->is_creating();
-            $updating = in_array('edit', $flags) && $this->entity->is_updating();
+            $creating = in_array($name, array_keys($this->entity->get_creatable_fields())) && $this->entity->is_creating();
+            $updating = in_array($name, array_keys($this->entity->get_updatable_fields())) && $this->entity->is_updating();
 
             if ( !$creating && !$updating ) {
                 return;
