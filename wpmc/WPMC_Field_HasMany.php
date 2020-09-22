@@ -62,7 +62,7 @@ class WPMC_Field_HasMany {
             switch($field['type']) {
                 case 'has_many':
                     // find the related IDs and merge with find data row
-                    $item[$name] = wpmc_has_many_ids($field, $item['id']);
+                    $item[$name] = $this->listRelationIds($field, $item['id']);
                 break;
             }
         }
@@ -75,7 +75,7 @@ class WPMC_Field_HasMany {
             if ( $field['type'] == 'has_many' ) {
                 foreach ( $rows as $key => $row ) {
                     $refEntity = wpmc_get_entity($field['ref_entity']);
-                    $ids = wpmc_has_many_ids($field, $row['id']);
+                    $ids = $this->listRelationIds($field, $row['id']);
                     $list = $refEntity->build_options($ids);
 
                     $html = '<ul>';
@@ -90,5 +90,17 @@ class WPMC_Field_HasMany {
         }
 
         return $rows;
+    }
+
+    function listRelationIds($field, $leftColumnId) {
+        global $wpdb;
+        $rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$field['pivot_table']} WHERE {$field['pivot_left']} = %d", $leftColumnId), ARRAY_A);
+        $list = [];
+
+        foreach ( $rows as $_row ) {
+            $list[] = $_row[ $field['pivot_right'] ];
+        }
+
+        return $list;
     }
 }

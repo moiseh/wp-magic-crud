@@ -18,20 +18,7 @@ class WPMC_Field {
     }
 
     public function render() {
-        $label = $this->label;
-
-        if ( $this->render_label ) {
-            ?>
-            <p>			
-                <label for="name"><?php echo $label; ?>:</label>
-                <br>
-                <?php $this->renderFieldContent(); ?>
-            </p>
-            <?php
-        }
-        else {
-            $this->renderFieldContent();
-        }
+        $this->renderFieldContent();
     }
 
     private function renderFieldContent() {

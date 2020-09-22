@@ -104,32 +104,22 @@ class WPMC_Form {
 
     function render_form_content() {
         foreach ( $this->entity->fields as $name => $field ) {
-            $this->render_field($name);
+            ?>
+            <p>
+                <?php $this->render_label($name, $field); ?>
+                <?php $this->render_field($name); ?>
+            </p>
+            <?php
         }
 
         $this->form_button();
     }
 
-    function form_button($label = null) {
-        if ( empty($label) ) {
-           $label = __('Salvar', 'wpbc');
-        }
-
-        ?>
-        <input type="submit" value="<?php echo $label ?>" id="submit" class="button-primary" name="submit">
+    function render_label($name, $field) {
+        ?>		
+        <label for="<?php echo $this->name; ?>"><?php echo $field['label']; ?>:</label>
+        <br>
         <?php
-    }
-
-    function form_field($type, $name, $label, $options = array()) {
-        $field = new WPMC_Field([
-            'item' => $this->get_editing_record(),
-            'type' => $type,
-            'name' => $name,
-            'label' => $label,
-            'options' => $options,
-        ]);
-
-        $field->render();
     }
 
     function render_field($name, $options = []) {
@@ -142,12 +132,24 @@ class WPMC_Form {
                 return;
             }
 
+            // $field['name'] = $name;
+            // do_action('wpmc_field_render', $field);
+            
             $obj = new WPMC_Field($field);
             $obj->name = $name;
             $obj->item = $this->get_editing_record();
             $obj->options = $options;
-
             $obj->render();
         }
+    }
+
+    function form_button($label = null) {
+        if ( empty($label) ) {
+           $label = __('Salvar', 'wpbc');
+        }
+
+        ?>
+        <input type="submit" value="<?php echo $label ?>" id="submit" class="button-primary" name="submit">
+        <?php
     }
 }
