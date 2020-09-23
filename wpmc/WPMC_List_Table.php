@@ -51,8 +51,8 @@ class WPMC_List_Table extends WP_List_Table {
         $identifier = $this->entity->form_page_identifier();
 
         $actions = array(
-            'edit' => sprintf('<a href="?page=%s&id=%s">%s</a>', $identifier, $item['id'], __('Editar', 'wpbc')),
-            'delete' => sprintf('<a href="?page=%s&action=delete&id=%s" onclick="return confirm(\'Confirma exclusão?\')">%s</a>', $_REQUEST['page'], $item['id'], __('Excluir', 'wpbc')),
+            'edit' => sprintf('<a href="?page=%s&id=%s">%s</a>', $identifier, $item['id'], __('Editar', 'wp-magic-crud')),
+            'delete' => sprintf('<a href="?page=%s&action=delete&id=%s" onclick="return confirm(\'Confirma exclusão?\')">%s</a>', $_REQUEST['page'], $item['id'], __('Excluir', 'wp-magic-crud')),
         );
 
         return $actions;

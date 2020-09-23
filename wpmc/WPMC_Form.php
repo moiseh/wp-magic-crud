@@ -33,7 +33,7 @@ class WPMC_Form {
                 $this->entity->add_alert($e->getMessage(), 'error');
             }
 
-            $this->entity->add_alert(__('Dados gravados com sucesso.', 'wpbc'));
+            $this->entity->add_alert(__('Dados gravados com sucesso.', 'wp-magic-crud'));
         } else {
             $this->entity->add_alert(implode('<br />', $post_errors), 'error');
         }
@@ -52,7 +52,7 @@ class WPMC_Form {
                 switch($type) {
                     case 'email':
                         if (!is_email($item['email'])) {
-                            $errors[] = __(sprintf('<b>%s</b> não é um e-mail válido', $label), 'wpbc');
+                            $errors[] = __(sprintf('<b>%s</b> não é um e-mail válido', $label), 'wp-magic-crud');
                         }
                     break;
                     case 'integer':
@@ -61,7 +61,7 @@ class WPMC_Form {
                 }
             }
             else if ( $required ) {
-                $errors[] = __(sprintf('<b>%s</b> é obrigatório', $label), 'wpbc');
+                $errors[] = __(sprintf('<b>%s</b> é obrigatório', $label), 'wp-magic-crud');
             }
         }
 
@@ -147,7 +147,7 @@ class WPMC_Form {
 
     function form_button($label = null) {
         if ( empty($label) ) {
-           $label = __('Salvar', 'wpbc');
+           $label = __('Salvar', 'wp-magic-crud');
         }
 
         ?>

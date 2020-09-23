@@ -150,11 +150,6 @@ class WPMC_Entity {
         return $opts;
     }
 
-    function redirect($url) {
-        // wp_safe_redirect($url);
-        // echo "<script>window.location.href = '{$url}';</script>";
-    }
-
     function delete($ids) {
         global $wpdb;
 
@@ -181,11 +176,6 @@ class WPMC_Entity {
         if ( !$canManage ) {
             throw new Exception('You cannot edit other users id');
         }
-    }
-
-    function has_column($column) {
-        $db = new WPMC_Database();
-        return $db->tableHasColumn($this->tableName, $column);
     }
 
     function find_by_id($id) {
@@ -228,7 +218,7 @@ class WPMC_Entity {
         }
 
         $capability = 'manage_saas';
-        $addLabel = __('Adicionar novo', 'wpbc');
+        $addLabel = __('Adicionar novo', 'wp-magic-crud');
         $listingPage = array($this, 'listing_page_handler');
         $formPage = array($this, 'form_page_handler');
 
@@ -241,7 +231,9 @@ class WPMC_Entity {
     }
 
     function listing_page_handler() {
-        global $wpdb;
+        $identifier = $this->identifier();
+        do_action("wpmc_before_entity");
+        do_action("wpmc_before_entity_{$identifier}", $this);
 
         $table = new WPMC_List_Table($this);
         $table->prepare_items();
@@ -249,7 +241,7 @@ class WPMC_Entity {
         $message = '';
         if ( 'delete' === $table->current_action() ) {
             $count = is_array($_REQUEST['id']) ? count($_REQUEST['id']) : 1;
-            $message = '<div class="updated below-h2" id="message"><p>' . sprintf(__('Itens removidos: %d', 'wpbc'), $count) . '</p></div>';
+            $message = '<div class="updated below-h2" id="message"><p>' . sprintf(__('Itens removidos: %d', 'wp-magic-crud'), $count) . '</p></div>';
         }
 
         ?>
@@ -258,7 +250,7 @@ class WPMC_Entity {
             <h2>
                 <?php echo $this->plural ?>
                 <?php if ( $this->can_create() ): ?>
-                    <a class="add-new-h2" href="<?php echo $this->create_url(); ?>"><?php _e('Adicionar novo', 'wpbc')?></a>
+                    <a class="add-new-h2" href="<?php echo $this->create_url(); ?>"><?php _e('Adicionar novo', 'wp-magic-crud')?></a>
                 <?php endif; ?>
             </h2>
             <?php echo $message; ?>
@@ -273,6 +265,10 @@ class WPMC_Entity {
     }
 
     function form_page_handler() {
+        $identifier = $this->identifier();
+        do_action("wpmc_before_entity");
+        do_action("wpmc_before_entity_{$identifier}", $this);
+
         $form = new WPMC_Form($this);
 
         if ( isset($_REQUEST['nonce']) && wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__)) ) {
@@ -283,7 +279,7 @@ class WPMC_Entity {
                 $item = $form->get_editing_record();
 
                 if (!$item) {
-                    $this->add_alert( __('Registro não encontrado', 'wpbc'), 'error' );
+                    $this->add_alert( __('Registro não encontrado', 'wp-magic-crud'), 'error' );
                 }
             }
             else {
@@ -292,13 +288,13 @@ class WPMC_Entity {
         }
         
         $identifier = $this->identifier();
-        $title = ( isset($_REQUEST['id']) ? __('Gerenciar', 'wpbc') : __('Adicionar', 'wpbc') ) . ' ' . $this->singular;
+        $title = ( isset($_REQUEST['id']) ? __('Gerenciar', 'wp-magic-crud') : __('Adicionar', 'wp-magic-crud') ) . ' ' . $this->singular;
         add_meta_box($this->metabox_identifier(), $title, array($form, 'render_form_content'), $this->identifier(), 'normal', 'default');
 
         ?>
         <div class="wrap">
             <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
-            <h2><?php echo $this->singular ?> <a class="add-new-h2" href="<?php echo $this->listing_url(); ?>"><?php _e('voltar para a lista', 'wpbc')?></a>
+            <h2><?php echo $this->singular ?> <a class="add-new-h2" href="<?php echo $this->listing_url(); ?>"><?php _e('voltar para a lista', 'wp-magic-crud')?></a>
             </h2>
 
             <?php $this->render_messages(); ?>

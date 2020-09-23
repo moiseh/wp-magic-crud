@@ -97,7 +97,7 @@ class WPMC_Database {
             $result = $wpdb->insert($tableName, $item);
 
             if (!is_numeric($result)) {
-                throw new Exception(__('Erro ao gravar os dados :(', 'wpbc'), 'error');
+                throw new Exception(__('Erro ao gravar os dados :(', 'wp-magic-crud'), 'error');
             }
 
             return $wpdb->insert_id;
@@ -106,7 +106,7 @@ class WPMC_Database {
             $result = $wpdb->update($tableName, $item, array('id' => $item['id']));
 
             if (!is_numeric($result)) {
-                throw new Exception(__('Erro ao atualizar os dados :(', 'wpbc'));
+                throw new Exception(__('Erro ao atualizar os dados :(', 'wp-magic-crud'));
             }
 
             return $item['id'];
