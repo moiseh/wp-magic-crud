@@ -11,6 +11,68 @@ class WPMC_Form {
         $this->entity = $entity;
     }
 
+    function metabox_identifier() {
+        return $this->entity->identifier() . '_form_meta_box';
+    }
+
+    function execute_page_handler() {
+        if ( isset($_REQUEST['nonce']) && wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__)) ) {
+            $this->process_form_post();
+        }
+        else {
+            if (isset($_REQUEST['id'])) {
+                $item = $this->get_editing_record();
+
+                if (!$item) {
+                    $this->entity->add_alert( __('Registro não encontrado', 'wp-magic-crud'), 'error' );
+                }
+            }
+            else {
+                $item = $this->form_default_values();
+            }
+        }
+        
+    
+        $singular = $this->entity->singular;
+        $title  = ( isset($_REQUEST['id']) ? __('Gerenciar', 'wp-magic-crud') : __('Adicionar', 'wp-magic-crud') );
+        $title .= $singular;
+
+        $identifier = $this->entity->identifier();
+        $formHandler = array($this, 'render_form_content');
+        $metaIdentifier = $this->metabox_identifier();
+        add_meta_box($metaIdentifier, $title, $formHandler, $identifier, 'normal', 'default');
+
+        $listingUrl = $this->entity->listing_url();
+
+        ?>
+        <div class="wrap">
+            <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
+            <h2>
+                <?php echo $singular ?>
+                <a class="add-new-h2" href="<?php echo $listingUrl; ?>">
+                    <?php _e('voltar para a lista', 'wp-magic-crud')?>
+                </a>
+            </h2>
+
+            <?php $this->entity->render_messages(); ?>
+
+            <form id="form_<?php echo $identifier; ?>" class="form-meta-box" method="POST">
+                <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
+                
+                <input type="hidden" name="id" value="<?php echo $item['id'] ?>"/>
+
+                <div class="metabox-holder" id="poststuff">
+                    <div id="post-body">
+                        <div id="post-body-content">
+                            <?php do_meta_boxes($identifier, 'normal', []); ?>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <?php
+    }
+
     function process_form_post($postData = []) {
         if ( empty($postData) ) {
             $postData = $_REQUEST;

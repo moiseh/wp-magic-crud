@@ -113,6 +113,27 @@ class WPMC_Database {
         }
     }
 
+    public function saveEntityData(WPMC_Entity $entity, $item) {
+        $item = apply_filters('wpmc_process_save_data', $item, $entity);
+
+        $db = new WPMC_Database();
+        $id = $db->saveData($entity->tableName, $item);
+
+        $item['id'] = $id;
+        do_action('wpmc_data_saved', $entity, $item);
+
+        return $id;
+    }
+
+    public function findByEntityId(WPMC_Entity $entity, $id) {
+        global $wpdb;
+
+        $sql = $wpdb->prepare("SELECT * FROM {$entity->tableName} WHERE id = %d", $id);
+        $row = $wpdb->get_row($sql, ARRAY_A);
+
+        return apply_filters('wpmc_entity_find', $row, $entity);
+    }
+
     public function buildMainQuery(WPMC_Entity $entity) {
 
         $qb = wpmc_query();
@@ -134,5 +155,24 @@ class WPMC_Database {
         $qb->select( apply_filters('wpmc_query_selects', $selects, $qb, $entity) );
 
         return apply_filters('wpmc_entity_query', $qb, $entity);
+    }
+
+    public function buildEntityOptionsList(WPMC_Entity $entity, $ids = array()) {
+        global $wpdb;
+
+        $sql = " SELECT id, {$entity->displayField} FROM {$entity->tableName} ";
+        if ( !empty($ids) ) {
+            $sql .= " WHERE id IN (" . implode(',', $ids) . ")";
+        }
+        $sql .= " ORDER BY {$entity->defaultOrder }";
+
+        $rows = $wpdb->get_results( $sql, ARRAY_A  );
+        $opts = [];
+        
+        foreach ( $rows as $row ) {
+            $opts[ $row['id'] ] = $row[$entity->displayField];
+        }
+
+        return $opts;
     }
 }

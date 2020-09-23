@@ -96,6 +96,41 @@ class WPMC_List_Table extends WP_List_Table {
         return apply_filters('wpmc_list_per_page', 10);
     }
 
+    function execute_page_handler() {
+        $this->prepare_items();
+
+        $message = '';
+        if ( 'delete' === $this->current_action() ) {
+            $count = is_array($_REQUEST['id']) ? count($_REQUEST['id']) : 1;
+            $message = '<div class="updated below-h2" id="message"><p>' . sprintf(__('Itens removidos: %d', 'wp-magic-crud'), $count) . '</p></div>';
+        }
+
+        $plural = $this->entity->plural;
+        $canCreate = $this->entity->can_create();
+        $createUrl = $this->entity->create_url();
+
+        ?>
+        <div class="wrap">
+            <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
+            <h2>
+                <?php echo $plural; ?>
+                <?php if ( $canCreate ): ?>
+                    <a class="add-new-h2" href="<?php echo $createUrl; ?>">
+                        <?php _e('Adicionar novo', 'wp-magic-crud')?>
+                    </a>
+                <?php endif; ?>
+            </h2>
+            <?php echo $message; ?>
+
+            <form class="" method="POST">
+                <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>"/>
+                <?php $this->search_box(__('Buscar'), 'search'); ?>
+                <?php $this->display() ?>
+            </form>
+        </div>
+        <?php
+    }
+
     function prepare_items()
     {
         global $wpdb;

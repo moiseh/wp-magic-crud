@@ -42,16 +42,50 @@ class WPMC_Entity {
         add_action('admin_menu', array($this, 'admin_menu'));
     }
 
+    function admin_menu() {        
+        $identifier = $this->identifier();
+
+        if ( !apply_filters("wpmc_show_menu", true, $this) ) {
+            return;
+        }
+
+        $capability = 'manage_saas';
+        $addLabel = __('Adicionar novo', 'wp-magic-crud');
+        $listingPage = array($this, 'listing_page_handler');
+        $formPage = array($this, 'form_page_handler');
+
+        add_menu_page($this->plural, $this->plural, $capability, $identifier, $listingPage);
+        add_submenu_page($identifier, $this->plural, $this->plural, $capability, $identifier, $listingPage);
+       
+        if ( $this->can_create() ) {
+            add_submenu_page($identifier, $addLabel, $addLabel, $capability, $this->form_page_identifier(), $formPage);
+        }
+    }
+
+    function listing_page_handler() {
+        $identifier = $this->identifier();
+        do_action("wpmc_before_entity");
+        do_action("wpmc_before_entity_{$identifier}", $this);
+
+        $table = new WPMC_List_Table($this);
+        $table->execute_page_handler();
+    }
+
+    function form_page_handler() {
+        $identifier = $this->identifier();
+        do_action("wpmc_before_entity");
+        do_action("wpmc_before_entity_{$identifier}", $this);
+
+        $form = new WPMC_Form($this);
+        $form->execute_page_handler();
+    }
+
     function identifier() {
         return $this->identifier;
     }
 
     function form_page_identifier() {
         return $this->identifier() . '_form';
-    }
-
-    function metabox_identifier() {
-        return $this->identifier() . '_form_meta_box';
     }
 
     function listing_url() {
@@ -78,16 +112,8 @@ class WPMC_Entity {
         return ( $this->current_page() == $this->identifier() );
     }
 
-    function can_create() {
-        $creatableFields = array_keys($this->get_creatable_fields());
-
-        foreach ( $this->fields as $name => $field ) {
-            if ( in_array($name, $creatableFields) ) {
-                return true;
-            }
-        }
-
-        return false;
+    function get_fields() {
+        return $this->fields;
     }
 
     function get_creatable_fields() {
@@ -131,38 +157,19 @@ class WPMC_Entity {
         return $fields;
     }
 
-    function build_options($ids = []) {
-        global $wpdb;
+    function can_create() {
+        $creatableFields = array_keys($this->get_creatable_fields());
 
-        $sql = " SELECT id, {$this->displayField} FROM {$this->tableName} ";
-        if ( !empty($ids) ) {
-            $sql .= " WHERE id IN (" . implode(',', $ids) . ")";
-        }
-        $sql .= " ORDER BY {$this->defaultOrder }";
-
-        $rows = $wpdb->get_results( $sql, ARRAY_A  );
-        $opts = [];
-        
-        foreach ( $rows as $row ) {
-            $opts[ $row['id'] ] = $row[$this->displayField];
+        foreach ( $this->fields as $name => $field ) {
+            if ( in_array($name, $creatableFields) ) {
+                return true;
+            }
         }
 
-        return $opts;
-    }
-
-    function delete($ids) {
-        global $wpdb;
-
-        $this->check_can_manage($ids);
-
-        foreach ( (array)$ids as $id ) {
-            $wpdb->delete($this->tableName, array('id' => $id));
-        }
+        return false;
     }
 
     function can_manage($ids) {
-        global $wpdb;
-
         if ( !is_array($ids) ) {
             $ids = [$ids];
         }
@@ -178,11 +185,30 @@ class WPMC_Entity {
         }
     }
 
-    function find_by_id($id) {
+    function build_options($ids = []) {
+        $db = new WPMC_Database();
+        return $db->buildEntityOptionsList($this, $ids);
+    }
+
+    function delete($ids) {
         global $wpdb;
+        $this->check_can_manage($ids);
+
+        foreach ( (array)$ids as $id ) {
+            $wpdb->delete($this->tableName, array('id' => $id));
+        }
+    }
+
+    function find_by_id($id) {
         $this->check_can_manage($id);
-        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$this->tableName} WHERE id = %d", $id), ARRAY_A);
-        return apply_filters('wpmc_entity_find', $row, $this);
+
+        $db = new WPMC_Database();
+        return $db->findByEntityId($this, $id);
+    }
+
+    function save_db_data($item) {
+        $db = new WPMC_Database();
+        return $db->saveEntityData($this, $item);
     }
 
     function add_alert($message, $type = 'message') {
@@ -192,127 +218,5 @@ class WPMC_Entity {
 
     function render_messages() {
         WPFlashMessages::show_flash_messages();
-    }
-
-    function process_save_data($item) {
-        return apply_filters('wpmc_process_save_data', $item, $this);
-    }
-
-    function save_db_data($item) {
-        $item = $this->process_save_data($item);
-
-        $db = new WPMC_Database();
-        $id = $db->saveData($this->tableName, $item);
-
-        $item['id'] = $id;
-        do_action('wpmc_data_saved', $this, $item);
-
-        return $id;
-    }
-
-    function admin_menu() {        
-        $identifier = $this->identifier();
-
-        if ( !apply_filters("wpmc_show_menu", true, $this) ) {
-            return;
-        }
-
-        $capability = 'manage_saas';
-        $addLabel = __('Adicionar novo', 'wp-magic-crud');
-        $listingPage = array($this, 'listing_page_handler');
-        $formPage = array($this, 'form_page_handler');
-
-        add_menu_page($this->plural, $this->plural, $capability, $identifier, $listingPage);
-        add_submenu_page($identifier, $this->plural, $this->plural, $capability, $identifier, $listingPage);
-       
-        if ( $this->can_create() ) {
-            add_submenu_page($identifier, $addLabel, $addLabel, $capability, $this->form_page_identifier(), $formPage);
-        }
-    }
-
-    function listing_page_handler() {
-        $identifier = $this->identifier();
-        do_action("wpmc_before_entity");
-        do_action("wpmc_before_entity_{$identifier}", $this);
-
-        $table = new WPMC_List_Table($this);
-        $table->prepare_items();
-
-        $message = '';
-        if ( 'delete' === $table->current_action() ) {
-            $count = is_array($_REQUEST['id']) ? count($_REQUEST['id']) : 1;
-            $message = '<div class="updated below-h2" id="message"><p>' . sprintf(__('Itens removidos: %d', 'wp-magic-crud'), $count) . '</p></div>';
-        }
-
-        ?>
-        <div class="wrap">
-            <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
-            <h2>
-                <?php echo $this->plural ?>
-                <?php if ( $this->can_create() ): ?>
-                    <a class="add-new-h2" href="<?php echo $this->create_url(); ?>"><?php _e('Adicionar novo', 'wp-magic-crud')?></a>
-                <?php endif; ?>
-            </h2>
-            <?php echo $message; ?>
-
-            <form class="" method="POST">
-                <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>"/>
-                <?php $table->search_box(__('Buscar'), 'search'); ?>
-                <?php $table->display() ?>
-            </form>
-        </div>
-        <?php
-    }
-
-    function form_page_handler() {
-        $identifier = $this->identifier();
-        do_action("wpmc_before_entity");
-        do_action("wpmc_before_entity_{$identifier}", $this);
-
-        $form = new WPMC_Form($this);
-
-        if ( isset($_REQUEST['nonce']) && wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__)) ) {
-            $form->process_form_post();
-        }
-        else {
-            if (isset($_REQUEST['id'])) {
-                $item = $form->get_editing_record();
-
-                if (!$item) {
-                    $this->add_alert( __('Registro não encontrado', 'wp-magic-crud'), 'error' );
-                }
-            }
-            else {
-                $item = $form->form_default_values();
-            }
-        }
-        
-        $identifier = $this->identifier();
-        $title = ( isset($_REQUEST['id']) ? __('Gerenciar', 'wp-magic-crud') : __('Adicionar', 'wp-magic-crud') ) . ' ' . $this->singular;
-        add_meta_box($this->metabox_identifier(), $title, array($form, 'render_form_content'), $this->identifier(), 'normal', 'default');
-
-        ?>
-        <div class="wrap">
-            <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
-            <h2><?php echo $this->singular ?> <a class="add-new-h2" href="<?php echo $this->listing_url(); ?>"><?php _e('voltar para a lista', 'wp-magic-crud')?></a>
-            </h2>
-
-            <?php $this->render_messages(); ?>
-
-            <form id="form_<?php echo $identifier; ?>" class="form-meta-box" method="POST">
-                <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
-                
-                <input type="hidden" name="id" value="<?php echo $item['id'] ?>"/>
-
-                <div class="metabox-holder" id="poststuff">
-                    <div id="post-body">
-                        <div id="post-body-content">
-                            <?php do_meta_boxes($this->identifier(), 'normal', []); ?>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <?php
     }
 }
