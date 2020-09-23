@@ -66,6 +66,18 @@ if ( !function_exists('wpmc_render_field')) {
     }
 }
 
+if ( !function_exists('wpmc_redirect')) {
+    function wpmc_redirect($url) {
+        ?>
+        <script>
+            window.location.href = "<?php echo $url; ?>";
+        </script>
+        <?php
+        
+        exit;
+    }
+}
+
 /*
 Description: Easily Show Flash Messages in WP Admin
 Version: 1
@@ -107,11 +119,12 @@ if (!class_exists('WPFlashMessages')) {
             delete_option('wp_flash_messages');
         }
     }
+
     new WPFlashMessages();
-    if( class_exists('WPFlashMessages') && !function_exists('queue_flash_message') ) {
-        function queue_flash_message($message, $class = null) {
-            WPFlashMessages::queue_flash_message($message, $class);
-        }
+}
+if ( !function_exists('wpmc_flash_message') ) {
+    function wpmc_flash_message($message, $class = null) {
+        WPFlashMessages::queue_flash_message($message, $class);
     }
 }
 // End of WPFlashMessages

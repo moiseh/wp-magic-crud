@@ -48,10 +48,10 @@ class WPMC_List_Table extends WP_List_Table {
     }
 
     function get_actions($item) {
-        $identifier = $this->entity->form_page_identifier();
+        $updateUrl = $this->entity->update_url($item['id']);
 
         $actions = array(
-            'edit' => sprintf('<a href="?page=%s&id=%s">%s</a>', $identifier, $item['id'], __('Editar', 'wp-magic-crud')),
+            'edit' => sprintf('<a href="%s">%s</a>', $updateUrl, __('Editar', 'wp-magic-crud')),
             'delete' => sprintf('<a href="?page=%s&action=delete&id=%s" onclick="return confirm(\'Confirma exclusão?\')">%s</a>', $_REQUEST['page'], $item['id'], __('Excluir', 'wp-magic-crud')),
         );
 
@@ -76,10 +76,11 @@ class WPMC_List_Table extends WP_List_Table {
 
     function process_bulk_action()
     {
-        global $wpdb;
+        $ids = [];
 
-        $ids = isset($_REQUEST['id']) ? $_REQUEST['id'] : [];
-        $ids = implode(',', (array)$ids);
+        if ( !empty($_REQUEST['id']) ) {
+            $ids = is_array($_REQUEST['id']) ? $_REQUEST['id'] : explode(',', $_REQUEST['id']);
+        }
 
         if (!empty($ids)) {
             $this->entity->check_can_manage($ids);
@@ -88,6 +89,9 @@ class WPMC_List_Table extends WP_List_Table {
         switch($this->current_action()) {
             case 'delete':
                 $this->entity->delete($ids);
+
+                wpmc_flash_message( sprintf(__('Itens removidos: %d', 'wp-magic-crud'), count($ids)) );
+                wpmc_redirect( $this->entity->listing_url() );
             break;
         }
     }
@@ -98,12 +102,7 @@ class WPMC_List_Table extends WP_List_Table {
 
     function execute_page_handler() {
         $this->prepare_items();
-
-        $message = '';
-        if ( 'delete' === $this->current_action() ) {
-            $count = is_array($_REQUEST['id']) ? count($_REQUEST['id']) : 1;
-            $message = '<div class="updated below-h2" id="message"><p>' . sprintf(__('Itens removidos: %d', 'wp-magic-crud'), $count) . '</p></div>';
-        }
+        $this->process_bulk_action();
 
         $plural = $this->entity->plural;
         $canCreate = $this->entity->can_create();
@@ -120,7 +119,8 @@ class WPMC_List_Table extends WP_List_Table {
                     </a>
                 <?php endif; ?>
             </h2>
-            <?php echo $message; ?>
+
+            <?php WPFlashMessages::show_flash_messages(); ?>
 
             <form class="" method="POST">
                 <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>"/>
@@ -133,8 +133,6 @@ class WPMC_List_Table extends WP_List_Table {
 
     function prepare_items()
     {
-        global $wpdb;
-
         $columns = [];
         $columns['cb'] = '<input type="checkbox" />';
         $columns += $this->get_columns();
@@ -143,8 +141,6 @@ class WPMC_List_Table extends WP_List_Table {
         $hidden = array();
         
         $this->_column_headers = array($columns, $hidden, $sortable);
-
-        $this->process_bulk_action();
 
         $query = $this->build_listing_query();
         $items = $query->get();

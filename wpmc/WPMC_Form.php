@@ -18,25 +18,23 @@ class WPMC_Form {
     function execute_page_handler() {
         if ( isset($_REQUEST['nonce']) && wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__)) ) {
             $this->process_form_post();
-            $this->editingRecord = null;
         }
         else {
             if (isset($_REQUEST['id'])) {
                 $item = $this->get_editing_record();
 
                 if (!$item) {
-                    $this->entity->add_alert( __('Registro não encontrado', 'wp-magic-crud'), 'error' );
+                    wpmc_flash_message( __('Registro não encontrado', 'wp-magic-crud'), 'error' );
                 }
             }
             else {
                 $item = $this->form_default_values();
             }
         }
-        
     
         $singular = $this->entity->singular;
         $title  = ( isset($_REQUEST['id']) ? __('Gerenciar', 'wp-magic-crud') : __('Adicionar', 'wp-magic-crud') );
-        $title .= $singular;
+        $title .= ' ' . $singular;
 
         $identifier = $this->entity->identifier();
         $formHandler = array($this, 'render_form_content');
@@ -55,7 +53,7 @@ class WPMC_Form {
                 </a>
             </h2>
 
-            <?php $this->entity->render_messages(); ?>
+            <?php WPFlashMessages::show_flash_messages(); ?>
 
             <form id="form_<?php echo $identifier; ?>" class="form-meta-box" method="POST">
                 <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
@@ -90,15 +88,16 @@ class WPMC_Form {
 
         if (empty($post_errors)) {
             try {
-                $this->entity->save_db_data($item);
+                $id = $this->entity->save_db_data($item);
+
+                wpmc_flash_message(__('Dados gravados com sucesso.', 'wp-magic-crud'));
+                wpmc_redirect( $this->entity->update_url($id) );
             }
             catch (Exception $e) {
-                $this->entity->add_alert($e->getMessage(), 'error');
+                wpmc_flash_message($e->getMessage(), 'error');
             }
-
-            $this->entity->add_alert(__('Dados gravados com sucesso.', 'wp-magic-crud'));
         } else {
-            $this->entity->add_alert(implode('<br />', $post_errors), 'error');
+            wpmc_flash_message(implode('<br />', $post_errors), 'error');
         }
     }
 
@@ -134,8 +133,6 @@ class WPMC_Form {
     function get_editing_record() {
         $row = $this->editingRecord;
 
-        // TODO: Checar se ID pertence ao do usuario logado para as Entity que devem ser protegidas / restringidas
-
         if ( is_null($this->editingRecord) ) {
             if ( isset($_REQUEST['id']) ) {
                 $id = absint($_REQUEST['id']);
@@ -145,7 +142,7 @@ class WPMC_Form {
             $row = array_merge((array)$row, $_REQUEST);
             $this->editingRecord = $row;
         }
-        
+
         return $row;
     }
 

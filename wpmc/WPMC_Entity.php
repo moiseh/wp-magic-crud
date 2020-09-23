@@ -96,6 +96,10 @@ class WPMC_Entity {
         return get_admin_url(get_current_blog_id(), 'admin.php?page='.$this->form_page_identifier());
     }
 
+    function update_url($id) {
+        return get_admin_url(get_current_blog_id(), 'admin.php?page='.$this->form_page_identifier().'&id='.$id);
+    }
+
     function current_page() {
         return !empty($_REQUEST['page']) ? $_REQUEST['page'] : '';
     }
@@ -209,14 +213,5 @@ class WPMC_Entity {
     function save_db_data($item) {
         $db = new WPMC_Database();
         return $db->saveEntityData($this, $item);
-    }
-
-    function add_alert($message, $type = 'message') {
-        // $this->alert[$type] = $message;
-        queue_flash_message($message, $type);
-    }
-
-    function render_messages() {
-        WPFlashMessages::show_flash_messages();
     }
 }

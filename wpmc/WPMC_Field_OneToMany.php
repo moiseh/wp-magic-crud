@@ -98,7 +98,7 @@ class WPMC_Field_OneToMany {
                         $savedIds[] = $refEntity->save_db_data($refItem);
                     }
                     
-                    // var_dump($savedIds); exit;
+                    // var_dump($savedIds);
 
                     // delete removed data from form
                     $relatedRows = $this->getRelatedRows($field, $relationId);
