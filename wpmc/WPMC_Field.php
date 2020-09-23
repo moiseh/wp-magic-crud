@@ -2,9 +2,28 @@
 class WPMC_Field {
     public function initHooks() {
         add_action('wpmc_field_render', array($this, 'renderCommonFieldTypes'), 10, 2);
+        add_action('wpmc_db_creating_fields', array($this, 'defineDbCommonFieldTypes'), 10, 2);
     }
 
-    public function renderCommonFieldTypes($field = [], $entity = null) {
+    function defineDbCommonFieldTypes($fields = [], $table) {
+        foreach ( $fields as $name => $field ) {
+            switch($field['type']) {
+                case 'textarea':
+                    $fields[$name]['db_type'] = 'TEXT';
+                break;
+                case 'integer':
+                    $fields[$name]['db_type'] = 'INTEGER';
+                break;
+                case 'text':
+                    $fields[$name]['db_type'] = 'VARCHAR(255)';
+                break;
+            }
+        }
+
+        return $fields;
+    }
+
+    function renderCommonFieldTypes($field = [], $entity = null) {
         switch($field['type']) {
             case 'textarea':
                 $this->textarea($field);

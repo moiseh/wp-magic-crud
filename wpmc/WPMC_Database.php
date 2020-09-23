@@ -26,34 +26,14 @@ class WPMC_Database {
     }
 
     public function doCreateTable($table, $fields) {
+        $fields = apply_filters('wpmc_db_creating_fields', $fields, $table);
         $stmt = [];
 
         foreach ( $fields as $col => $field ) {
-            $ref = '';
-
-            switch($field['type']) {
-                case 'one_to_many':
-                case 'has_many':
-                    break;
-                case 'belongs_to':
-                    $type = 'INTEGER';
-                    $entity = wpmc_get_entity( $field['ref_entity'] );
-                    $refTable = $entity->tableName;
-                    $ref = "REFERENCES {$refTable}(id)";
-                break;
-                case 'textarea':
-                    $type = 'TEXT';
-                break;
-                case 'integer':
-                    $type = 'INTEGER';
-                break;
-                default:
-                    $type = 'VARCHAR(255)';
-                break;
-            }
-
+            $dbType = !empty($field['db_type']) ? $field['db_type'] : 'VARCHAR(255)';
+            $ref = !empty($field['db_references']) ? $field['db_references'] : '';
             $null = ( !empty($field['required']) && $field['required'] ) ? ' NOT NULL ' : '';
-            $stmt[$col] = "`{$col}` {$type}{$null}{$ref},";
+            $stmt[$col] = "`{$col}` {$dbType}{$null}{$ref},";
         }
 
         $sql = "CREATE TABLE {$table} (
@@ -63,11 +43,8 @@ class WPMC_Database {
             PRIMARY KEY  (id)
         );";
 
-        // var_dump($sql); exit;
-
         dbDelta($sql);
-
-        do_action('wpmc_db_creating', $table, $fields);
+        do_action('wpmc_db_table_created', $table, $fields);
     }
 
 

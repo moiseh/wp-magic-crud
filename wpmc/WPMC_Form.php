@@ -18,6 +18,7 @@ class WPMC_Form {
     function execute_page_handler() {
         if ( isset($_REQUEST['nonce']) && wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__)) ) {
             $this->process_form_post();
+            $this->editingRecord = null;
         }
         else {
             if (isset($_REQUEST['id'])) {

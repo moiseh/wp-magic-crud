@@ -1,9 +1,26 @@
 <?php
 class WPMC_Field_BelongsTo {
     function initHooks() {
+        add_action('wpmc_db_creating_fields', array($this, 'defineDbFieldType'), 10, 2);
         add_filter('wpmc_query_selects', array($this, 'entityQuerySelects'), 10, 3);
         add_filter('wpmc_entity_list', array($this, 'entityList'), 10, 2);
         add_action('wpmc_field_render', array($this, 'renderField'), 10, 2);
+    }
+
+    function defineDbFieldType($fields = [], $table) {
+        foreach ( $fields as $name => $field ) {
+            switch($field['type']) {
+                case 'belongs_to':
+                    $entity = wpmc_get_entity( $field['ref_entity'] );
+                    $refTable = $entity->tableName;
+
+                    $fields[$name]['db_type'] = 'INTEGER';
+                    $fields[$name]['db_references'] = "REFERENCES {$refTable}(id)";
+                break;
+            }
+        }
+
+        return $fields;
     }
 
     function entityQuerySelects($selects, WPMC_Query_Builder $qb, WPMC_Entity $entity) {

@@ -3,7 +3,7 @@ class WPMC_Field_HasMany {
     function initHooks() {
         add_filter('wpmc_entity_find', array($this, 'entityFind'), 10, 2);
         add_filter('wpmc_entity_list', array($this, 'entityList'), 10, 2);
-        add_action('wpmc_db_creating', array($this, 'dbCreatingFields'), 10, 2);
+        add_action('wpmc_db_table_created', array($this, 'dbCreatingFields'), 10, 2);
         add_action('wpmc_data_saved', array($this, 'saveFormData'), 10, 2);
         add_action('wpmc_field_render', array($this, 'renderField'), 10, 2);
     }
