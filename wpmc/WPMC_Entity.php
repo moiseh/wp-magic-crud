@@ -162,6 +162,8 @@ class WPMC_Entity {
     function delete($ids) {
         global $wpdb;
 
+        $this->check_can_manage($ids);
+
         foreach ( (array)$ids as $id ) {
             $wpdb->delete($this->tableName, array('id' => $id));
         }
