@@ -93,7 +93,7 @@ class WPMC_List_Table extends WP_List_Table {
     }
 
     function get_per_page() {
-        return 10;
+        return apply_filters('wpmc_list_per_page', 10);
     }
 
     function prepare_items()
@@ -150,6 +150,6 @@ class WPMC_List_Table extends WP_List_Table {
         $qb->limit($perPage);
         $qb->offset($paged);
 
-        return apply_filters('wpmc_listing_query', $qb, $this->entity);
+        return apply_filters('wpmc_list_query', $qb, $this->entity);
     }
 }

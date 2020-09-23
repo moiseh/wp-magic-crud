@@ -343,6 +343,7 @@ class WPMC_Query_Builder {
 	public function getCountRows() {
 		$this->select('COUNT(*)');
 		$this->bindings = [];
+		$this->limit = null;
 
 		$sql = $this->buildSqlAndPrepare();
 		$scalar = $this->db->get_var($sql);

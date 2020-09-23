@@ -2,10 +2,6 @@
 class WPMC_Database {
     private $tableSchema = [];
 
-    public function init_hooks() {
-        // add_filter('wpmc_listing_query', array($this, 'listingQueryAlter'), 5, 2);
-    }
-
     public function getTableColumns($table) {
         global $wpdb;
 
@@ -115,20 +111,6 @@ class WPMC_Database {
 
             return $item['id'];
         }
-    }
-
-    public function arrayToSql($sql = array()) {
-        $sqlString = '';
-
-        foreach ( array_filter($sql) as $statement => $query ) {
-            if ( $statement == 'where' && is_array($query) ) {
-                $query = implode(' AND ', $query);
-            }
-
-            $sqlString .= strtoupper($statement) . " {$query} ";
-        }
-
-        return $sqlString;
     }
 
     public function buildMainQuery(WPMC_Entity $entity) {
