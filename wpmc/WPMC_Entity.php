@@ -13,10 +13,6 @@ class WPMC_Entity {
             $this->fields = $options['fields'];
         }
 
-        if ( !empty($options['fields']) ) {
-            $this->fields = $options['fields'];
-        }
-
         if ( !empty($options['identifier']) ) {
             $this->identifier = $options['identifier'];
         }
