@@ -1,9 +1,35 @@
 <?php
 class WPMC_Field {
     public function initHooks() {
+        add_filter('wpmc_validation_errors', array($this, 'validateFormData'), 10, 3);
         add_action('wpmc_field_render', array($this, 'renderCommonFieldTypes'), 10, 2);
         add_action('wpmc_db_creating_fields', array($this, 'defineDbCommonFieldTypes'), 10, 2);
     }
+
+    function validateFormData($errors, $item = [], $fields = []) {
+        foreach ( $fields as $name => $field ) {
+            if ( !empty($item[$name]) ) {
+                switch($field['type']) {
+                    case 'email':
+                        if (!is_email($item[$name]) ) {
+                            $errors[$name] = __('Invalid e-mail', 'wp-magic-crud');
+                        }
+                    break;
+                    case 'integer':
+                        if (!is_numeric($item[$name]) ) {
+                            $errors[$name] = __('Invalid number', 'wp-magic-crud');
+                        }
+                    break;
+                    case 'text':
+                        // $errors[$name] = __('Test validation error', 'wp-magic-crud');
+                    break;
+                }   
+            }
+        }
+
+        return $errors;
+    }
+
 
     function defineDbCommonFieldTypes($fields = [], $table) {
         foreach ( $fields as $name => $field ) {

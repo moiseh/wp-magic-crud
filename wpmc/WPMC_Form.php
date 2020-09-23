@@ -11,6 +11,12 @@ class WPMC_Form {
         $this->entity = $entity;
     }
 
+    function get_context_fields() {
+        return $this->entity->is_creating() ?
+            $this->entity->get_creatable_fields() :
+            $this->entity->get_updatable_fields();
+    }
+
     function metabox_identifier() {
         return $this->entity->identifier() . '_form_meta_box';
     }
@@ -79,14 +85,14 @@ class WPMC_Form {
 
         $default = $this->form_default_values();
         $item = shortcode_atts($default, $postData);
-        $post_errors = $this->validate_form($item);
+        $validationErrors = $this->validate_form($item);
         $id = !empty($item['id']) ? $item['id'] : null;
 
         if ( $id > 0 ) {
             $this->entity->check_can_manage($id);
         }
 
-        if (empty($post_errors)) {
+        if (empty($validationErrors)) {
             try {
                 $id = $this->entity->save_db_data($item);
 
@@ -96,38 +102,37 @@ class WPMC_Form {
             catch (Exception $e) {
                 wpmc_flash_message($e->getMessage(), 'error');
             }
-        } else {
-            wpmc_flash_message(implode('<br />', $post_errors), 'error');
+        }
+        else {
+            $errors = [];
+
+            foreach ( $validationErrors as $key => $error ) {
+                if ( !empty($this->entity->fields[$key]) ) {
+                    $field = $this->entity->fields[$key];
+                    $errors[] = sprintf('<b>%s:</b> %s', $field['label'], $error);
+                }
+                else {
+                    $errors[] = $error;
+                }
+            }
+
+            wpmc_flash_message(implode('<br />', $errors), 'error');
         }
     }
 
     function validate_form($item) {
         $errors = [];
-        $fields = $this->entity->is_creating() ? $this->entity->get_creatable_fields() : $this->entity->get_updatable_fields();
+        $fields = $this->get_context_fields();
 
         foreach ( $fields as $name => $field ) {
-            $required = isset($field['required']) && $field['required'];
-            $label = $field['label'];
-            $type = $field['type'];
+            $isRequired = ( isset($field['required']) && $field['required'] );
 
-            if ( !empty($item[$name]) ) {
-                switch($type) {
-                    case 'email':
-                        if (!is_email($item['email'])) {
-                            $errors[] = __(sprintf('<b>%s</b> não é um e-mail válido', $label), 'wp-magic-crud');
-                        }
-                    break;
-                    case 'integer':
-                        // !absint(intval($item['phone'])))
-                    break;
-                }
-            }
-            else if ( $required ) {
-                $errors[] = __(sprintf('<b>%s</b> é obrigatório', $label), 'wp-magic-crud');
+            if ( $isRequired && empty($item[$name]) ) {
+                $errors[$name] = __('Mandatory field', 'wp-magic-crud');
             }
         }
 
-        return $errors;
+        return apply_filters('wpmc_validation_errors', $errors, $item, $fields);
     }
 
     function get_editing_record() {
@@ -153,7 +158,7 @@ class WPMC_Form {
     function form_default_values() {
         $values = [];
         $values['id'] = 0;
-        $fields = $this->entity->is_creating() ? $this->entity->get_creatable_fields() : $this->entity->get_updatable_fields();
+        $fields = $this->get_context_fields();
 
         foreach ( $fields as $name => $field ) {
             $values[$name] = '';
@@ -185,10 +190,8 @@ class WPMC_Form {
     function render_field($name, $options = []) {
         if ( !empty($this->entity->fields[$name]) ) {
             $field = $this->entity->fields[$name];
-            $creating = in_array($name, array_keys($this->entity->get_creatable_fields())) && $this->entity->is_creating();
-            $updating = in_array($name, array_keys($this->entity->get_updatable_fields())) && $this->entity->is_updating();
-
-            if ( !$creating && !$updating ) {
+ 
+            if ( !in_array($name, array_keys($this->get_context_fields())) ) {
                 return;
             }
 
