@@ -132,14 +132,16 @@ class WPMC_Form {
                 return;
             }
 
-            // $field['name'] = $name;
-            // do_action('wpmc_field_render', $field);
+            // get field value
+            if ( empty($field['value']) ) {
+                $item = $this->get_editing_record();
+                if ( !empty($item[$name]) ) {
+                    $field['value'] = $item[$name];
+                }
+            }
             
-            $obj = new WPMC_Field($field);
-            $obj->name = $name;
-            $obj->item = $this->get_editing_record();
-            $obj->options = $options;
-            $obj->render();
+            $field['name'] = $name;
+            wpmc_render_field($field, $this->entity);
         }
     }
 

@@ -225,7 +225,7 @@ class WPMC_Entity {
     function admin_menu() {        
         $identifier = $this->identifier();
 
-        if ( !apply_filters("wpmc_show_menu_{$identifier}", true) ) {
+        if ( !apply_filters("wpmc_show_menu", true, $this) ) {
             return;
         }
 

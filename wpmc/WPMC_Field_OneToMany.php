@@ -112,20 +112,19 @@ class WPMC_Field_OneToMany {
         }
     }
 
-    function renderEntityFieldType(WPMC_Field $field) {
-        if ( $field->type != 'one_to_many' ) {
+    function renderEntityFieldType($field = []) {
+        if ( $field['type'] != 'one_to_many' ) {
             return;
         }
 
         $templateHtml = $this->getEntityTemplate($field);
-        $fieldRefEntity = $field->ref_entity;
+        $fieldRefEntity = $field['ref_entity'];
         $refEntity = wpmc_get_entity($fieldRefEntity);
         $addTitle = __("Adicionar {$refEntity->singular}");
-        $refItems = !empty($field->item[$field->name]) ? $field->item[$field->name] : [];
+        $refItems = !empty($field['value']) ? $field['value'] : [];
 
         // use this way to change default html template
         ob_start();
-        do_action("wpmc_entity_field_render_{$field->ref_entity}", null, $refEntity);
         $html = ob_get_clean();
         if ( !empty($html) ) {
             echo $html;
@@ -176,9 +175,9 @@ class WPMC_Field_OneToMany {
         <?php
     }
 
-    function getEntityTemplate(WPMC_Field $field, $item = []) {
-        $entityName = $field->ref_entity;
-        $refColumn = $field->ref_column;
+    function getEntityTemplate($field = [], $item = []) {
+        $entityName = $field['ref_entity'];
+        $refColumn = $field['ref_column'];
         $refEntity = wpmc_get_entity($entityName);
         $refFields = $refEntity->fields;
 
@@ -195,13 +194,13 @@ class WPMC_Field_OneToMany {
                     continue;
                 }
 
-                $obj = new WPMC_Field($field);
-                $obj->name = "{$entityName}[{index}][{$name}]";
-                $obj->value = !empty($item[$name]) ? $item[$name] : null;
+                $field['name'] = "{$entityName}[{index}][{$name}]";
+                $field['value'] = !empty($item[$name]) ? $item[$name] : null;
 
                 ?>
                 <td class="">
-                    <?php $obj->render(); ?>
+                    <label for="<?php echo $name; ?>"><?php echo $field['label']; ?>:</label>
+                    <?php wpmc_render_field($field); ?>
                 </td>
                 <?php
             }

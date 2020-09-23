@@ -10,6 +10,11 @@ if ( !class_exists('WPMC_Entity')) {
 if ( !class_exists('WPMC_Form')) {
     require_once __DIR__ . '/WPMC_Form.php';
 }
+if ( !class_exists('WPMC_Field')) {
+    require_once __DIR__ . '/WPMC_Field.php';
+    $fieldCommon = new WPMC_Field();
+    $fieldCommon->initHooks();
+}
 if ( !class_exists('WPMC_Field_OneToMany')) {
     require_once __DIR__ . '/WPMC_Field_OneToMany.php';
     $fieldEntity = new WPMC_Field_OneToMany();
@@ -24,9 +29,6 @@ if ( !class_exists('WPMC_Field_BelongsTo')) {
     require_once __DIR__ . '/WPMC_Field_BelongsTo.php';
     $fieldBelongsTo = new WPMC_Field_BelongsTo();
     $fieldBelongsTo->initHooks();
-}
-if ( !class_exists('WPMC_Field')) {
-    require_once __DIR__ . '/WPMC_Field.php';
 }
 if ( !class_exists('WPMC_Database')) {
     require_once __DIR__ . '/WPMC_Database.php';

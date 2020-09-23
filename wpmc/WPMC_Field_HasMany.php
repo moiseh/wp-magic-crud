@@ -45,11 +45,13 @@ class WPMC_Field_HasMany {
         }
     }
 
-    function renderField(WPMC_Field $field, $options = []) {
-        if ( $field->type == 'has_many' ) {
-            $refEntity = wpmc_get_entity($field->ref_entity);
-            $options['choices'] = $refEntity->build_options();
-            echo $field->checkbox_multi($options);
+    function renderField($field = []) {
+        if ( $field['type'] == 'has_many' ) {
+            $refEntity = wpmc_get_entity($field['ref_entity']);
+            $field['choices'] = $refEntity->build_options();
+
+            $fieldHelper = new WPMC_Field();
+            echo $fieldHelper->checkbox_multi($field);
         }
     }
 

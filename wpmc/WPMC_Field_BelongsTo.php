@@ -18,12 +18,13 @@ class WPMC_Field_BelongsTo {
         return $selects;
     }
 
-    function renderField(WPMC_Field $field, $options = []) {
-        if ( $field->type == 'belongs_to' ) {
-            $refEntity = wpmc_get_entity($field->ref_entity);
-            $options['choices'] = $refEntity->build_options();
+    function renderField($field = []) {
+        if ( $field['type'] == 'belongs_to' ) {
+            $refEntity = wpmc_get_entity($field['ref_entity']);
+            $field['choices'] = $refEntity->build_options();
 
-            echo $field->select($options);
+            $fieldHelper = new WPMC_Field();
+            echo $fieldHelper->select($field);
         }
     }
 
