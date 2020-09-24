@@ -55,7 +55,7 @@ class WPMC_List_Table extends WP_List_Table {
             'delete' => sprintf('<a href="?page=%s&action=delete&id=%s" onclick="return confirm(\'Confirma exclusão?\')">%s</a>', $_REQUEST['page'], $item['id'], __('Excluir', 'wp-magic-crud')),
         );
 
-        return $actions;
+        return apply_filters('wpmc_list_actions', $actions, $item, $this->entity);
     }
 
     function column_cb($item)
@@ -71,7 +71,8 @@ class WPMC_List_Table extends WP_List_Table {
         $actions = array(
             'delete' => 'Excluir'
         );
-        return $actions;
+
+        return apply_filters('wpmc_bulk_actions', $actions, $this->entity);
     }
 
     function process_bulk_action()
@@ -86,12 +87,17 @@ class WPMC_List_Table extends WP_List_Table {
             $this->entity->check_can_manage($ids);
         }
 
-        switch($this->current_action()) {
+        $action = $this->current_action();
+
+        switch($action) {
             case 'delete':
                 $this->entity->delete($ids);
 
                 wpmc_flash_message( sprintf(__('Itens removidos: %d', 'wp-magic-crud'), count($ids)) );
                 wpmc_redirect( $this->entity->listing_url() );
+            break;
+            default:
+                do_action('wpmc_run_action', $action, $ids, $this->entity);
             break;
         }
     }
@@ -101,8 +107,13 @@ class WPMC_List_Table extends WP_List_Table {
     }
 
     function execute_page_handler() {
+
+        if ( !empty($this->current_action()) ) {
+            $this->process_bulk_action();
+            return;
+        }
+
         $this->prepare_items();
-        $this->process_bulk_action();
 
         $plural = $this->entity->plural;
         $canCreate = $this->entity->can_create();

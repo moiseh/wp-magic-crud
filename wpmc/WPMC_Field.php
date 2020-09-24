@@ -63,6 +63,12 @@ class WPMC_Field {
             case 'text':
                 $this->text($field);
             break;
+            case 'checkbox_multi':
+                $this->checkbox_multi($field);
+            break;
+            case 'select':
+                $this->select($field);
+            break;
         }
     }
 

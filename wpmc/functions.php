@@ -66,6 +66,18 @@ if ( !function_exists('wpmc_render_field')) {
     }
 }
 
+if ( !function_exists('wpmc_field_and_label')) {
+    function wpmc_field_and_label($field = [], $label = null, $entity = null) {
+        ?>
+        <p>
+            <label for="<?php echo $field['name']; ?>"><?php echo $field['label']; ?>:</label>
+            <br>
+            <?php wpmc_render_field($field); ?>
+        </p>
+        <?php
+    }
+}
+
 if ( !function_exists('wpmc_redirect')) {
     function wpmc_redirect($url) {
         ?>
@@ -75,6 +87,13 @@ if ( !function_exists('wpmc_redirect')) {
         <?php
         
         exit;
+    }
+}
+
+if ( ! function_exists( 'get_current_page_url' ) ) {
+    function get_current_page_url() {
+      global $wp;
+      return add_query_arg( $_SERVER['QUERY_STRING'], '', $wp->request );
     }
 }
 

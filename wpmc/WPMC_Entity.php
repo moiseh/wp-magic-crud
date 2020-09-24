@@ -63,18 +63,14 @@ class WPMC_Entity {
     }
 
     function listing_page_handler() {
-        $identifier = $this->identifier();
-        do_action("wpmc_before_entity");
-        do_action("wpmc_before_entity_{$identifier}", $this);
+        do_action("wpmc_before_entity", $this);
 
         $table = new WPMC_List_Table($this);
         $table->execute_page_handler();
     }
 
     function form_page_handler() {
-        $identifier = $this->identifier();
-        do_action("wpmc_before_entity");
-        do_action("wpmc_before_entity_{$identifier}", $this);
+        do_action("wpmc_before_entity", $this);
 
         $form = new WPMC_Form($this);
         $form->execute_page_handler();
@@ -98,6 +94,14 @@ class WPMC_Entity {
 
     function update_url($id) {
         return get_admin_url(get_current_blog_id(), 'admin.php?page='.$this->form_page_identifier().'&id='.$id);
+    }
+
+    function get_action_url($action, $id) {
+        return get_admin_url(get_current_blog_id(), 'admin.php?page='.$this->identifier().'&action='.$action.'&id='.$id);
+    }
+
+    function get_action_link($action, $id, $label) {
+        return sprintf('<a href="%s">%s</a>', $this->get_action_url($action, $id), $label);
     }
 
     function current_page() {
