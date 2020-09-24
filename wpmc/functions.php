@@ -177,7 +177,7 @@ if ( !function_exists('wpmc_field_with_label')) {
 }
 
 if ( !function_exists('wpmc_default_action_form') ) {
-    function wpmc_default_action_form($title, $postCallback, $formCallback) {
+    function wpmc_default_action_form($postCallback, $formCallback, $title = null) {
         if ( isset($_REQUEST['nonce']) && wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__)) ) {
             $postCallback();
         }
@@ -194,17 +194,22 @@ if ( !function_exists('wpmc_default_action_form') ) {
         <div class="wrap">
             <div class="icon32 icon32-posts-post" id="icon-edit">
             <br></div>
-            <h2>
-                <?php echo $title; ?>
-                <a class="add-new-h2" href="<?php echo $listingUrl; ?>">
-                    <?php echo $backLabel; ?>
-                </a>
-            </h2>
             <?php wpmc_flash_render(); ?>
             <form action="<?php echo get_current_page_url(); ?>" method="POST">
                 <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
                 <input type="hidden" name="action" value="<?php echo $action; ?>"/>
                 <input type="hidden" name="id" value="<?php echo implode(',', $ids); ?>"/>
+                <?php if ( !empty($title) ): ?>
+                    <h2>
+                        <?php echo $title; ?>
+                        <a class="add-new-h2" href="<?php echo $listingUrl; ?>">
+                            <?php echo $backLabel; ?>
+                        </a>
+                    </h2>
+                    <h4>
+                        <?php echo sprintf(__('Total records that will be affected: %s'), count($ids)); ?>
+                    </h4>
+                <?php endif; ?>
                 <?php $formCallback(); ?>
             </form>
         </div>
