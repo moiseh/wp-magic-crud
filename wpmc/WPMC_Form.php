@@ -26,7 +26,7 @@ class WPMC_Form {
             $this->process_form_post();
         }
         else {
-            if (isset($_REQUEST['id'])) {
+            if ( $this->entity->is_updating() ) {
                 $item = $this->get_editing_record();
 
                 if (!$item) {
@@ -39,7 +39,7 @@ class WPMC_Form {
         }
     
         $singular = $this->entity->singular;
-        $title  = ( isset($_REQUEST['id']) ? __('Gerenciar', 'wp-magic-crud') : __('Adicionar', 'wp-magic-crud') );
+        $title  = ( $this->entity->is_updating() ? __('Gerenciar', 'wp-magic-crud') : __('Adicionar', 'wp-magic-crud') );
         $title .= ' ' . $singular;
 
         $identifier = $this->entity->identifier();
@@ -88,10 +88,6 @@ class WPMC_Form {
         $validationErrors = $this->validate_form($item);
         $id = !empty($item['id']) ? $item['id'] : null;
 
-        if ( $id > 0 ) {
-            $this->entity->check_can_manage($id);
-        }
-
         if (empty($validationErrors)) {
             try {
                 $id = $this->entity->save_db_data($item);
@@ -132,14 +128,14 @@ class WPMC_Form {
             }
         }
 
-        return apply_filters('wpmc_validation_errors', $errors, $item, $fields);
+        return apply_filters('wpmc_validation_errors', $errors, $fields);
     }
 
     function get_editing_record() {
         $row = $this->editingRecord;
 
         if ( is_null($this->editingRecord) ) {
-            if ( isset($_REQUEST['id']) ) {
+            if ( $this->entity->is_updating() ) {
                 $id = absint($_REQUEST['id']);
                 $row = $this->entity->find_by_id($id);
             }

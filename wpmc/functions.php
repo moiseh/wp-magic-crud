@@ -50,13 +50,36 @@ if ( !function_exists('wpmc_get_entity')) {
      */
     function wpmc_get_entity($name) {
         $entities = wpmc_get_entities();
+        
+        if( empty($entities[$name])) {
+            throw new Exception('Invalid entity');
+        }
+
         return $entities[$name];
     }
 }
 
 if ( !function_exists('wpmc_current_entity')) {
     function wpmc_current_entity() {
-        return !empty($_REQUEST['page']) ? $_REQUEST['page'] : null;
+        return !empty($_REQUEST['page']) ? str_replace('_form', '', $_REQUEST['page']) : null;
+    }
+}
+
+if ( !function_exists('wpmc_get_current_entity')) {
+    function wpmc_get_current_entity() {
+        return wpmc_get_entity( wpmc_current_entity() );
+    }
+}
+
+if ( !function_exists('wpmc_request_ids')) {
+    function wpmc_request_ids() {
+        $ids = [];
+
+        if ( !empty($_REQUEST['id']) ) {
+            $ids = is_array($_REQUEST['id']) ? $_REQUEST['id'] : explode(',', $_REQUEST['id']);
+        }
+
+        return $ids;
     }
 }
 

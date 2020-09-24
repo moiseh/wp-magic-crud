@@ -49,7 +49,7 @@ class WPMC_Entity {
             return;
         }
 
-        $capability = 'manage_saas';
+        $capability = 'activate_plugins';
         $addLabel = __('Adicionar novo', 'wp-magic-crud');
         $listingPage = array($this, 'listing_page_handler');
         $formPage = array($this, 'form_page_handler');
@@ -64,6 +64,7 @@ class WPMC_Entity {
 
     function listing_page_handler() {
         do_action("wpmc_before_entity", $this);
+        do_action("wpmc_before_list", $this);
 
         $table = new WPMC_List_Table($this);
         $table->execute_page_handler();
@@ -71,6 +72,7 @@ class WPMC_Entity {
 
     function form_page_handler() {
         do_action("wpmc_before_entity", $this);
+        do_action("wpmc_before_form", $this);
 
         $form = new WPMC_Form($this);
         $form->execute_page_handler();
@@ -177,20 +179,8 @@ class WPMC_Entity {
         return false;
     }
 
-    function can_manage($ids) {
-        if ( !is_array($ids) ) {
-            $ids = [$ids];
-        }
-
-        return apply_filters('wpmc_can_manage', $this, $ids);
-    }
-
-    function check_can_manage($ids) {
-        $canManage = $this->can_manage($ids);
-
-        if ( !$canManage ) {
-            throw new Exception('You cannot edit other users id');
-        }
+    function go_to_home() {
+        wpmc_redirect($this->listing_url());
     }
 
     function build_options($ids = []) {
@@ -200,16 +190,15 @@ class WPMC_Entity {
 
     function delete($ids) {
         global $wpdb;
-        $this->check_can_manage($ids);
 
-        foreach ( (array)$ids as $id ) {
+        $ids = (array) apply_filters('wpmc_before_delete_ids', $ids, $this);
+
+        foreach ( $ids as $id ) {
             $wpdb->delete($this->tableName, array('id' => $id));
         }
     }
 
     function find_by_id($id) {
-        $this->check_can_manage($id);
-
         $db = new WPMC_Database();
         return $db->findByEntityId($this, $id);
     }
