@@ -86,14 +86,13 @@ class WPMC_Form {
         $default = $this->form_default_values();
         $item = shortcode_atts($default, $postData);
         $validationErrors = $this->validate_form($item);
-        $id = !empty($item['id']) ? $item['id'] : null;
 
         if (empty($validationErrors)) {
             try {
                 $id = $this->entity->save_db_data($item);
 
                 wpmc_flash_message(__('Dados gravados com sucesso.', 'wp-magic-crud'));
-                wpmc_redirect( $this->entity->update_url($id) );
+                $this->entity->back_to_home();
             }
             catch (Exception $e) {
                 wpmc_flash_message($e->getMessage(), 'error');

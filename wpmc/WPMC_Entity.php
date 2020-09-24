@@ -179,7 +179,7 @@ class WPMC_Entity {
         return false;
     }
 
-    function go_to_home() {
+    function back_to_home() {
         wpmc_redirect($this->listing_url());
     }
 

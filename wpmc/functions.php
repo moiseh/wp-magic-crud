@@ -89,18 +89,6 @@ if ( !function_exists('wpmc_render_field')) {
     }
 }
 
-if ( !function_exists('wpmc_field_and_label')) {
-    function wpmc_field_and_label($field = [], $label = null, $entity = null) {
-        ?>
-        <p>
-            <label for="<?php echo $field['name']; ?>"><?php echo $field['label']; ?>:</label>
-            <br>
-            <?php wpmc_render_field($field); ?>
-        </p>
-        <?php
-    }
-}
-
 if ( !function_exists('wpmc_redirect')) {
     function wpmc_redirect($url) {
         ?>
@@ -169,4 +157,57 @@ if ( !function_exists('wpmc_flash_message') ) {
         WPFlashMessages::queue_flash_message($message, $class);
     }
 }
+if ( !function_exists('wpmc_flash_render') ) {
+    function wpmc_flash_render() {
+        WPFlashMessages::show_flash_messages();
+    }
+}
 // End of WPFlashMessages
+
+if ( !function_exists('wpmc_field_with_label')) {
+    function wpmc_field_with_label($field = [], $label = null, $entity = null) {
+        ?>
+        <p>
+            <label for="<?php echo $field['name']; ?>"><?php echo $field['label']; ?>:</label>
+            <br>
+            <?php wpmc_render_field($field); ?>
+        </p>
+        <?php
+    }
+}
+
+if ( !function_exists('wpmc_default_action_form') ) {
+    function wpmc_default_action_form($title, $postCallback, $formCallback) {
+        if ( isset($_REQUEST['nonce']) && wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__)) ) {
+            $postCallback();
+        }
+    
+        $entity = wpmc_get_current_entity();
+        $ids = wpmc_request_ids();
+        $listingUrl = $entity->listing_url();
+        $action = $_REQUEST['action'];
+        $backLabel = __('Back to', 'wp-magic-crud') . ' ' . $entity->plural;
+        // $actions = apply_filters('wpmc_list_actions', [], ['id'=>0]);
+        // $labelAction = strip_tags($actions[$action]);
+    
+        ?>
+        <div class="wrap">
+            <div class="icon32 icon32-posts-post" id="icon-edit">
+            <br></div>
+            <h2>
+                <?php echo $title; ?>
+                <a class="add-new-h2" href="<?php echo $listingUrl; ?>">
+                    <?php echo $backLabel; ?>
+                </a>
+            </h2>
+            <?php wpmc_flash_render(); ?>
+            <form action="<?php echo get_current_page_url(); ?>" method="POST">
+                <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
+                <input type="hidden" name="action" value="<?php echo $action; ?>"/>
+                <input type="hidden" name="id" value="<?php echo implode(',', $ids); ?>"/>
+                <?php $formCallback(); ?>
+            </form>
+        </div>
+        <?php
+    }
+}
