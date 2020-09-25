@@ -55,7 +55,7 @@ class WPMC_Entity {
         }
 
         $capability = 'activate_plugins';
-        $addLabel = __('Adicionar novo', 'wp-magic-crud');
+        $addLabel = __('Add new', 'wp-magic-crud');
         $listingPage = array($this, 'listing_page_handler');
         $formPage = array($this, 'form_page_handler');
         $plural = $this->get_plural();

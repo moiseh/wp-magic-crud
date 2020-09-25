@@ -30,7 +30,7 @@ class WPMC_Form {
                 $item = $this->get_editing_record();
 
                 if (!$item) {
-                    wpmc_flash_message( __('Registro não encontrado', 'wp-magic-crud'), 'error' );
+                    wpmc_flash_message( __('Record not found', 'wp-magic-crud'), 'error' );
                 }
             }
             else {
@@ -39,7 +39,8 @@ class WPMC_Form {
         }
     
         $singular = $this->entity->get_singular();
-        $title  = ( $this->entity->is_updating() ? __('Gerenciar', 'wp-magic-crud') : __('Adicionar', 'wp-magic-crud') );
+
+        $title = $this->entity->is_updating() ? __('Manage', 'wp-magic-crud') : __('Add', 'wp-magic-crud');
         $title .= ' ' . $singular;
 
         $identifier = $this->entity->identifier();
@@ -55,7 +56,7 @@ class WPMC_Form {
             <h2>
                 <?php echo $singular ?>
                 <a class="add-new-h2" href="<?php echo $listingUrl; ?>">
-                    <?php _e('voltar para a lista', 'wp-magic-crud')?>
+                    <?php _e('back to list', 'wp-magic-crud')?>
                 </a>
             </h2>
 
@@ -91,7 +92,7 @@ class WPMC_Form {
             try {
                 $id = $this->entity->save_db_data($item);
 
-                wpmc_flash_message(__('Dados gravados com sucesso.', 'wp-magic-crud'));
+                wpmc_flash_message(__('Data successfully saved', 'wp-magic-crud'));
                 $this->entity->back_to_home();
             }
             catch (Exception $e) {

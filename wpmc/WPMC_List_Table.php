@@ -59,8 +59,8 @@ class WPMC_List_Table extends WP_List_Table {
         $updateUrl = $this->entity->update_url($item['id']);
 
         $actions = array(
-            'edit' => sprintf('<a href="%s">%s</a>', $updateUrl, __('Editar', 'wp-magic-crud')),
-            'delete' => sprintf('<a href="?page=%s&action=delete&id=%s" onclick="return confirm(\'%s\')">%s</a>', $_REQUEST['page'], $item['id'], __('Confirm delete?', 'wp-magic-crud'), __('Excluir', 'wp-magic-crud')),
+            'edit' => sprintf('<a href="%s">%s</a>', $updateUrl, __('Update', 'wp-magic-crud')),
+            'delete' => sprintf('<a href="?page=%s&action=delete&id=%s" onclick="return confirm(\'%s\')">%s</a>', $_REQUEST['page'], $item['id'], __('Confirm delete?', 'wp-magic-crud'), __('Delete', 'wp-magic-crud')),
         );
 
         return apply_filters('wpmc_list_actions', $actions, $item);
@@ -121,7 +121,7 @@ class WPMC_List_Table extends WP_List_Table {
                 <?php echo $plural; ?>
                 <?php if ( $canCreate ): ?>
                     <a class="add-new-h2" href="<?php echo $createUrl; ?>">
-                        <?php _e('Adicionar novo', 'wp-magic-crud')?>
+                        <?php _e('Add new', 'wp-magic-crud')?>
                     </a>
                 <?php endif; ?>
             </h2>
@@ -130,7 +130,7 @@ class WPMC_List_Table extends WP_List_Table {
 
             <form class="" method="POST">
                 <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>"/>
-                <?php $this->search_box(__('Buscar'), 'search'); ?>
+                <?php $this->search_box(__('Search'), 'search'); ?>
                 <?php $this->display() ?>
             </form>
         </div>

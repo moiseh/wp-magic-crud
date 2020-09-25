@@ -122,7 +122,7 @@ class WPMC_Field_OneToMany {
         $templateHtml = $this->getEntityTemplate($field);
         $fieldRefEntity = $field['ref_entity'];
         $refEntity = wpmc_get_entity($fieldRefEntity);
-        $addTitle = sprintf(__("Adicionar %s", 'wp-magic-crud'), $refEntity->get_singular());
+        $addTitle = sprintf(__("Add %s", 'wp-magic-crud'), $refEntity->get_singular());
         $refItems = !empty($field['value']) ? $field['value'] : [];
 
         // use this way to change default html template

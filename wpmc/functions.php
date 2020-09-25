@@ -106,7 +106,7 @@ if ( !function_exists('wpmc_field_with_label')) {
 if ( !function_exists('wpmc_submit_button')) {
     function wpmc_submit_button($label = null) {
         if ( empty($label) ) {
-            $label = __('Salvar', 'wp-magic-crud');
+            $label = __('Save', 'wp-magic-crud');
         }
 
         ?>
