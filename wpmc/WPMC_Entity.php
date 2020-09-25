@@ -7,6 +7,7 @@ class WPMC_Entity {
     public $identifier;
     public $singular;
     public $plural;
+    public $menuIcon;
 
     function __construct($options = array()) {
         if ( !empty($options['fields']) ) {
@@ -29,6 +30,10 @@ class WPMC_Entity {
             $this->tableName = $options['table_name'];
         }
 
+        if ( !empty($options['menu_icon']) ) {
+            $this->menuIcon = $options['menu_icon'];
+        }
+        
         if ( !empty($options['default_order']) ) {
             $this->defaultOrder = $options['default_order'];
         }
@@ -54,7 +59,7 @@ class WPMC_Entity {
         $listingPage = array($this, 'listing_page_handler');
         $formPage = array($this, 'form_page_handler');
 
-        add_menu_page($this->plural, $this->plural, $capability, $identifier, $listingPage);
+        add_menu_page($this->plural, $this->plural, $capability, $identifier, $listingPage, $this->menuIcon);
         add_submenu_page($identifier, $this->plural, $this->plural, $capability, $identifier, $listingPage);
        
         if ( $this->can_create() ) {
