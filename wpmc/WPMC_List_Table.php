@@ -59,7 +59,7 @@ class WPMC_List_Table extends WP_List_Table {
         $updateUrl = $this->entity->update_url($item['id']);
 
         $actions = array(
-            'edit' => sprintf('<a href="%s">%s</a>', $updateUrl, __('Update', 'wp-magic-crud')),
+            'edit' => sprintf('<a href="%s">%s</a>', $updateUrl, __('Edit', 'wp-magic-crud')),
             'delete' => sprintf('<a href="?page=%s&action=delete&id=%s" onclick="return confirm(\'%s\')">%s</a>', $_REQUEST['page'], $item['id'], __('Confirm delete?', 'wp-magic-crud'), __('Delete', 'wp-magic-crud')),
         );
 
@@ -69,7 +69,7 @@ class WPMC_List_Table extends WP_List_Table {
     function get_bulk_actions()
     {
         $actions = array(
-            'delete' => 'Excluir'
+            'delete' => __('Delete', 'wp-magic-crud'),
         );
 
         return apply_filters('wpmc_bulk_actions', $actions);
@@ -93,6 +93,7 @@ class WPMC_List_Table extends WP_List_Table {
             break;
             default:
                 do_action('wpmc_run_action', $action, $ids);
+                do_action("wpmc_run_action_{$action}", $ids);
             break;
         }
     }
@@ -126,7 +127,7 @@ class WPMC_List_Table extends WP_List_Table {
                 <?php endif; ?>
             </h2>
 
-            <?php WPFlashMessages::show_flash_messages(); ?>
+            <?php wpmc_flash_render(); ?>
 
             <form class="" method="POST">
                 <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>"/>
