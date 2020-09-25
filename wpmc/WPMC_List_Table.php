@@ -13,8 +13,8 @@ class WPMC_List_Table extends WP_List_Table {
         $this->entity = $entity;
 
         parent::__construct(array(
-            'singular' => $entity->singular,
-            'plural'   => $entity->plural,
+            'singular' => $entity->get_singular(),
+            'plural'   => $entity->get_plural(),
         ));
     }
 
@@ -39,7 +39,7 @@ class WPMC_List_Table extends WP_List_Table {
     }
 
     function column_default($item, $col) {
-        if ( $col == $this->entity->displayField ) {
+        if ( $col == $this->entity->get_display_field() ) {
             $actions = $this->get_actions($item);
             return sprintf('%s %s', $item['name'], $this->row_actions($actions));
         }
@@ -110,7 +110,7 @@ class WPMC_List_Table extends WP_List_Table {
 
         $this->prepare_items();
 
-        $plural = $this->entity->plural;
+        $plural = $this->entity->get_plural();
         $canCreate = $this->entity->can_create();
         $createUrl = $this->entity->create_url();
 
@@ -170,9 +170,11 @@ class WPMC_List_Table extends WP_List_Table {
         $perPage = $this->get_per_page();
         $sortCols = array_keys($this->get_sortable_columns());
         $sortableFields = array_keys($this->entity->get_sortable_fields());
-        $tableName = $this->entity->tableName;
+        $tableName = $this->entity->get_table();
+        $defaultOrder = $this->entity->get_default_order();
+
         $paged = isset($_REQUEST['paged']) ? max(0, intval($_REQUEST['paged']) - 1) : 0;
-        $orderBy = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], $sortCols)) ? $_REQUEST['orderby'] : $this->entity->defaultOrder;
+        $orderBy = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], $sortCols)) ? $_REQUEST['orderby'] : $defaultOrder;
         $order = (isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc'))) ? $_REQUEST['order'] : 'asc';
         $search = ( !empty($_REQUEST['s']) && $this->entity->is_listing() ) ? sanitize_text_field($_REQUEST['s']) : '';
 

@@ -12,7 +12,7 @@ class WPMC_Field_BelongsTo {
             switch($field['type']) {
                 case 'belongs_to':
                     $entity = wpmc_get_entity( $field['ref_entity'] );
-                    $refTable = $entity->tableName;
+                    $refTable = $entity->get_table();
 
                     $fields[$name]['db_type'] = 'INTEGER';
                     $fields[$name]['db_references'] = "REFERENCES {$refTable}(id)";
@@ -24,11 +24,15 @@ class WPMC_Field_BelongsTo {
     }
 
     function entityQuerySelects($selects, WPMC_Query_Builder $qb, WPMC_Entity $entity) {
-        foreach ( $entity->fields as $name => $field ) {
-            if ($field['type'] == 'belongs_to') {
+        foreach ( $entity->get_fields() as $name => $field ) {
+
+            if ( $field['type'] == 'belongs_to' ) {
                 $refEntity = wpmc_get_entity($field['ref_entity']);
-                $selects[$name] = "{$refEntity->tableName}.{$refEntity->displayField} AS {$field['ref_entity']}";
-                $qb->leftJoin($refEntity->tableName, $name, '=', "{$refEntity->tableName}.id");            
+                $table = $refEntity->get_table();
+                $displayField = $refEntity->get_display_field();
+                $selects[$name] = "{$table}.{$displayField} AS {$field['ref_entity']}";
+
+                $qb->leftJoin($table, $name, '=', "{$table}.id");            
             }
         }
 

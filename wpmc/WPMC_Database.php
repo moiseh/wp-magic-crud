@@ -53,12 +53,12 @@ class WPMC_Database {
 
         foreach ( $entities as $key => $entity ) {
             if ( $entity instanceof WPMC_Entity ) {
-                $fieldsHash = md5(serialize($entity->fields));
+                $fieldsHash = md5(serialize($entity->get_fields()));
 
                 if ( empty($versions[$key]) || ( $fieldsHash != $versions[$key] ) ) {
                     $versions[$key] = $fieldsHash;
     
-                    $this->doCreateTable($entity->tableName, $entity->fields);
+                    $this->doCreateTable($entity->get_table(), $entity->get_fields());
                 }
             }
         }
@@ -94,7 +94,7 @@ class WPMC_Database {
         $item = apply_filters('wpmc_process_save_data', $item, $entity);
 
         $db = new WPMC_Database();
-        $id = $db->saveData($entity->tableName, $item);
+        $id = $db->saveData($entity->get_table(), $item);
 
         $item['id'] = $id;
         do_action('wpmc_data_saved', $entity, $item);
@@ -105,7 +105,8 @@ class WPMC_Database {
     public function findByEntityId(WPMC_Entity $entity, $id) {
         global $wpdb;
 
-        $sql = $wpdb->prepare("SELECT * FROM {$entity->tableName} WHERE id = %d", $id);
+        $table = $entity->get_table();
+        $sql = $wpdb->prepare("SELECT * FROM {$table} WHERE id = %d", $id);
         $row = $wpdb->get_row($sql, ARRAY_A);
 
         return apply_filters('wpmc_entity_find', $row, $entity);
@@ -114,17 +115,19 @@ class WPMC_Database {
     public function buildMainQuery(WPMC_Entity $entity) {
 
         $qb = wpmc_query();
-        $qb->from($entity->tableName);
+        $qb->from($entity->get_table());
 
-        $selects = ['id' => "{$entity->tableName}.id"];
+        $table = $entity->get_table();
+        $selects = ['id' => "{$table}.id"];
 
-        foreach ( $entity->fields as $name => $field ) {
+        foreach ( $entity->get_fields() as $name => $field ) {
             switch($field['type']) {
                 case 'has_many':
                 case 'one_to_many':
                 break;
                 default:
-                    $selects[$name] = "{$entity->tableName}.{$name}";
+                    $table = $entity->get_table();
+                    $selects[$name] = "{$table}.{$name}";
                 break;
             }
         }
@@ -137,17 +140,23 @@ class WPMC_Database {
     public function buildEntityOptionsList(WPMC_Entity $entity, $ids = array()) {
         global $wpdb;
 
-        $sql = " SELECT id, {$entity->displayField} FROM {$entity->tableName} ";
+        $table = $entity->get_table();
+        $displayField = $entity->get_display_field();
+        $defaultOrder = $entity->get_default_order();
+
+        $sql = " SELECT id, {$displayField} FROM {$table} ";
+
         if ( !empty($ids) ) {
             $sql .= " WHERE id IN (" . implode(',', $ids) . ")";
         }
-        $sql .= " ORDER BY {$entity->defaultOrder }";
+        
+        $sql .= " ORDER BY {$defaultOrder}";
 
         $rows = $wpdb->get_results( $sql, ARRAY_A  );
         $opts = [];
         
         foreach ( $rows as $row ) {
-            $opts[ $row['id'] ] = $row[$entity->displayField];
+            $opts[ $row['id'] ] = $row[$displayField];
         }
 
         return $opts;

@@ -14,10 +14,11 @@ class WPMC_Field_OneToMany {
         $fieldRefEntity = $field['ref_entity'];
         $fieldRefColumn = $field['ref_column'];
         $refEntity = wpmc_get_entity($fieldRefEntity);
+        $refTable = $refEntity->get_table();
         
         $db = new WPMC_Database();
         $query = $db->buildMainQuery($refEntity);
-        $query->where("{$refEntity->tableName}.{$fieldRefColumn}", "=", $relationId);
+        $query->where("{$refTable}.{$fieldRefColumn}", "=", $relationId);
 
         $rows = $query->get();
 
@@ -31,7 +32,7 @@ class WPMC_Field_OneToMany {
             return $item;
         }
 
-        foreach ( $entity->fields as $name => $field ) {
+        foreach ( $entity->get_fields() as $name => $field ) {
             if ( $field['type'] == 'one_to_many' ) {
                 $relationId = $item['id'];
                 $item[$name] = $this->getRelatedRows($field, $relationId);
@@ -51,11 +52,12 @@ class WPMC_Field_OneToMany {
                 foreach ( $parentRows as $key => $parentRow ) {
                     $relationId = $parentRow['id'];
                     $items = $this->getRelatedRows($field, $relationId);
+                    
                     if ( count($items) > 1 ) {
-                        $parentRows[$key][$name] = count($items) . ' ' . $refEntity->plural;
+                        $parentRows[$key][$name] = count($items) . ' ' . $refEntity->get_plural();
                     }
                     else {
-                        $parentRows[$key][$name] = count($items) . ' ' . $refEntity->singular;
+                        $parentRows[$key][$name] = count($items) . ' ' . $refEntity->get_singular();
                     }
                     
                     // $parentRows[$key][$name] = $this->buildEntityListingTable($field, $items);
@@ -67,7 +69,7 @@ class WPMC_Field_OneToMany {
     }
 
     function formValidate($errors = [], WPMC_Entity $entity, $item) {
-        // foreach ( $entity->fields as $name => $field ) {
+        // foreach ( $entity->get_fields() as $name => $field ) {
         //     if ( $field['type'] == 'entity' ) {
         //         $fieldRefEntity = $field['ref_entity'];
 
@@ -82,7 +84,7 @@ class WPMC_Field_OneToMany {
     }
 
     function saveEntityData(WPMC_Entity $entity, $item) {
-        foreach ( $entity->fields as $name => $field ) {
+        foreach ( $entity->get_fields() as $name => $field ) {
             if ( $field['type'] == 'one_to_many' ) {
                 $fieldRefEntity = $field['ref_entity'];
                 $fieldRefColumn = $field['ref_column'];
@@ -120,7 +122,7 @@ class WPMC_Field_OneToMany {
         $templateHtml = $this->getEntityTemplate($field);
         $fieldRefEntity = $field['ref_entity'];
         $refEntity = wpmc_get_entity($fieldRefEntity);
-        $addTitle = __("Adicionar {$refEntity->singular}");
+        $addTitle = sprintf(__("Adicionar %s", 'wp-magic-crud'), $refEntity->get_singular());
         $refItems = !empty($field['value']) ? $field['value'] : [];
 
         // use this way to change default html template
@@ -179,7 +181,7 @@ class WPMC_Field_OneToMany {
         $entityName = $field['ref_entity'];
         $refColumn = $field['ref_column'];
         $refEntity = wpmc_get_entity($entityName);
-        $refFields = $refEntity->fields;
+        $refFields = $refEntity->get_fields();
 
         ob_start();
         ?>

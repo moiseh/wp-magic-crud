@@ -84,8 +84,34 @@ if ( !function_exists('wpmc_request_ids')) {
 }
 
 if ( !function_exists('wpmc_render_field')) {
-    function wpmc_render_field($field = [], $entity = null) {
-        do_action('wpmc_field_render', $field, $entity);
+    function wpmc_render_field($field = []) {
+        do_action('wpmc_field_render', $field);
+    }
+}
+
+if ( !function_exists('wpmc_field_with_label')) {
+    function wpmc_field_with_label($field = []) {
+        ?>
+        <p>
+            <label for="<?php echo $field['name']; ?>">
+                <?php echo $field['label']; ?>:
+            </label>
+            <br>
+            <?php wpmc_render_field($field); ?>
+        </p>
+        <?php
+    }
+}
+
+if ( !function_exists('wpmc_submit_button')) {
+    function wpmc_submit_button($label = null) {
+        if ( empty($label) ) {
+            $label = __('Salvar', 'wp-magic-crud');
+        }
+
+        ?>
+        <input type="submit" value="<?php echo $label; ?>" id="submit" class="button-primary" name="submit">
+        <?php
     }
 }
 
@@ -164,18 +190,6 @@ if ( !function_exists('wpmc_flash_render') ) {
 }
 // End of WPFlashMessages
 
-if ( !function_exists('wpmc_field_with_label')) {
-    function wpmc_field_with_label($field = [], $label = null, $entity = null) {
-        ?>
-        <p>
-            <label for="<?php echo $field['name']; ?>"><?php echo $field['label']; ?>:</label>
-            <br>
-            <?php wpmc_render_field($field); ?>
-        </p>
-        <?php
-    }
-}
-
 if ( !function_exists('wpmc_default_action_form') ) {
     function wpmc_default_action_form($postCallback, $formCallback, $title = null) {
         if ( isset($_REQUEST['nonce']) && wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__)) ) {
@@ -186,7 +200,7 @@ if ( !function_exists('wpmc_default_action_form') ) {
         $ids = wpmc_request_ids();
         $listingUrl = $entity->listing_url();
         $action = $_REQUEST['action'];
-        $backLabel = __('Back to', 'wp-magic-crud') . ' ' . $entity->plural;
+        $backLabel = __('Back to', 'wp-magic-crud') . ' ' . $entity->get_plural();
         // $actions = apply_filters('wpmc_list_actions', [], ['id'=>0]);
         // $labelAction = strip_tags($actions[$action]);
     

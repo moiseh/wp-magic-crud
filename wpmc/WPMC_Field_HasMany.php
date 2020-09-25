@@ -30,7 +30,7 @@ class WPMC_Field_HasMany {
             return;
         }
 
-        foreach ( $entity->fields as $name => $field ) {
+        foreach ( $entity->get_fields() as $name => $field ) {
             if ( $field['type'] == 'has_many' ) {
                 $db = new WPMC_Database();
                 $wpdb->delete($field['pivot_table'], array($field['pivot_left'] => $item['id']));
@@ -60,7 +60,7 @@ class WPMC_Field_HasMany {
             return $item;
         }
 
-        foreach ( $entity->fields as $name => $field ) {
+        foreach ( $entity->get_fields() as $name => $field ) {
             switch($field['type']) {
                 case 'has_many':
                     // find the related IDs and merge with find data row

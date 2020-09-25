@@ -1,13 +1,13 @@
 <?php
 class WPMC_Entity {
-    public $fields = [];
-    public $tableName;
-    public $displayField;
-    public $defaultOrder;
-    public $identifier;
-    public $singular;
-    public $plural;
-    public $menuIcon;
+    private $fields = [];
+    private $tableName;
+    private $displayField;
+    private $defaultOrder;
+    private $identifier;
+    private $singular;
+    private $plural;
+    private $menuIcon;
 
     function __construct($options = array()) {
         if ( !empty($options['fields']) ) {
@@ -58,9 +58,10 @@ class WPMC_Entity {
         $addLabel = __('Adicionar novo', 'wp-magic-crud');
         $listingPage = array($this, 'listing_page_handler');
         $formPage = array($this, 'form_page_handler');
+        $plural = $this->get_plural();
 
-        add_menu_page($this->plural, $this->plural, $capability, $identifier, $listingPage, $this->menuIcon);
-        add_submenu_page($identifier, $this->plural, $this->plural, $capability, $identifier, $listingPage);
+        add_menu_page($plural, $plural, $capability, $identifier, $listingPage, $this->menuIcon);
+        add_submenu_page($identifier, $plural, $plural, $capability, $identifier, $listingPage);
        
         if ( $this->can_create() ) {
             add_submenu_page($identifier, $addLabel, $addLabel, $capability, $this->form_page_identifier(), $formPage);
@@ -127,13 +128,41 @@ class WPMC_Entity {
         return ( $this->current_page() == $this->identifier() );
     }
 
+    function get_singular() {
+        return $this->singular;
+    }
+
+    function get_plural() {
+        return $this->plural;
+    }
+
+    function get_table() {
+        return $this->tableName;
+    }
+
+    function get_display_field() {
+        return $this->displayField;
+    }
+
+    function get_default_order() {
+        return $this->defaultOrder;
+    }
+
     function get_fields() {
         return $this->fields;
     }
 
+    function get_field($name) {
+        return $this->fields[$name];
+    }
+
+    function has_field($name) {
+        return !empty($this->fields[$name]);
+    }
+
     function get_creatable_fields() {
         $fields = [];
-        foreach ( $this->fields as $name => $field ) {
+        foreach ( $this->get_fields() as $name => $field ) {
             if ( empty($field['restrict_to']) || in_array('add', $field['restrict_to']) ) $fields[$name] = $field;
         }
         return $fields;
@@ -141,7 +170,7 @@ class WPMC_Entity {
 
     function get_updatable_fields() {
         $fields = [];
-        foreach ( $this->fields as $name => $field ) {
+        foreach ( $this->get_fields() as $name => $field ) {
             if ( empty($field['restrict_to']) || in_array('edit', $field['restrict_to']) ) $fields[$name] = $field;
         }
         return $fields;
@@ -149,7 +178,7 @@ class WPMC_Entity {
 
     function get_listable_fields() {
         $fields = [];
-        foreach ( $this->fields as $name => $field ) {
+        foreach ( $this->get_fields() as $name => $field ) {
             if ( empty($field['restrict_to']) || in_array('list', $field['restrict_to']) ) $fields[$name] = $field;
         }
         return $fields;
@@ -158,7 +187,7 @@ class WPMC_Entity {
     function get_sortable_fields() {
         $listableFields = array_keys($this->get_listable_fields());
         $fields = [];
-        foreach ( $this->fields as $name => $field ) {
+        foreach ( $this->get_fields() as $name => $field ) {
             if ( empty($field['restrict_to']) || in_array('sort', $field['restrict_to']) && in_array($name, $listableFields) ) $fields[$name] = $field;
         }
         return $fields;
@@ -166,7 +195,7 @@ class WPMC_Entity {
 
     function get_view_fields() {
         $fields = [];
-        foreach ( $this->fields as $name => $field ) {
+        foreach ( $this->get_fields() as $name => $field ) {
             if ( empty($field['restrict_to']) || in_array('view', $field['restrict_to']) ) $fields[$name] = $field;
         }
         return $fields;
@@ -175,7 +204,7 @@ class WPMC_Entity {
     function can_create() {
         $creatableFields = array_keys($this->get_creatable_fields());
 
-        foreach ( $this->fields as $name => $field ) {
+        foreach ( $this->get_fields() as $name => $field ) {
             if ( in_array($name, $creatableFields) ) {
                 return true;
             }
@@ -197,9 +226,10 @@ class WPMC_Entity {
         global $wpdb;
 
         $ids = (array) apply_filters('wpmc_before_delete_ids', $ids, $this);
+        $table = $this->get_table();
 
         foreach ( $ids as $id ) {
-            $wpdb->delete($this->tableName, array('id' => $id));
+            $wpdb->delete($table, array('id' => $id));
         }
     }
 

@@ -38,7 +38,7 @@ class WPMC_Form {
             }
         }
     
-        $singular = $this->entity->singular;
+        $singular = $this->entity->get_singular();
         $title  = ( $this->entity->is_updating() ? __('Gerenciar', 'wp-magic-crud') : __('Adicionar', 'wp-magic-crud') );
         $title .= ' ' . $singular;
 
@@ -59,7 +59,7 @@ class WPMC_Form {
                 </a>
             </h2>
 
-            <?php WPFlashMessages::show_flash_messages(); ?>
+            <?php wpmc_flash_render(); ?>
 
             <form id="form_<?php echo $identifier; ?>" class="form-meta-box" method="POST">
                 <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
@@ -102,8 +102,8 @@ class WPMC_Form {
             $errors = [];
 
             foreach ( $validationErrors as $key => $error ) {
-                if ( !empty($this->entity->fields[$key]) ) {
-                    $field = $this->entity->fields[$key];
+                if ( $this->entity->has_field($key) ) {
+                    $field = $this->entity->get_field($key);
                     $errors[] = sprintf('<b>%s:</b> %s', $field['label'], $error);
                 }
                 else {
@@ -163,53 +163,36 @@ class WPMC_Form {
     }
 
     function render_form_content() {
-        foreach ( $this->entity->fields as $name => $field ) {
-            ?>
-            <p>
-                <?php $this->render_label($name, $field); ?>
-                <?php $this->render_field($name); ?>
-            </p>
-            <?php
+        foreach ( $this->entity->get_fields() as $name => $field ) {
+            $this->render_field($name);
         }
 
-        $this->form_button();
+        wpmc_submit_button();
     }
 
-    function render_label($name, $field) {
-        ?>		
-        <label for="<?php echo $this->name; ?>"><?php echo $field['label']; ?>:</label>
-        <br>
-        <?php
-    }
-
-    function render_field($name, $options = []) {
-        if ( !empty($this->entity->fields[$name]) ) {
-            $field = $this->entity->fields[$name];
+    function render_field($name) {
+        if ( $this->entity->has_field($name) ) {
+            $field = $this->entity->get_field($name);
  
             if ( !in_array($name, array_keys($this->get_context_fields())) ) {
                 return;
             }
-
-            // get field value
-            if ( empty($field['value']) ) {
-                $item = $this->get_editing_record();
-                if ( !empty($item[$name]) ) {
-                    $field['value'] = $item[$name];
-                }
-            }
             
             $field['name'] = $name;
-            wpmc_render_field($field, $this->entity);
+            $field['value'] = $this->get_field_value($name, $field);
+            wpmc_field_with_label($field, $this->entity);
         }
     }
 
-    function form_button($label = null) {
-        if ( empty($label) ) {
-           $label = __('Salvar', 'wp-magic-crud');
+    function get_field_value($name, $field = []) {
+        if ( empty($field['value']) ) {
+            $item = $this->get_editing_record();
+
+            if ( !empty($item[$name]) ) {
+                return $item[$name];
+            }
         }
 
-        ?>
-        <input type="submit" value="<?php echo $label ?>" id="submit" class="button-primary" name="submit">
-        <?php
+        return null;
     }
 }
