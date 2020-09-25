@@ -25,7 +25,7 @@ if ( !function_exists('wpmc_load_app_entities')) {
             $options['identifier'] = $entity;
 
             $obj = new WPMC_Entity($options);
-            $obj->init();
+            $obj->init_hooks();
         
             $wpmc_entities[$entity] = $obj;
         }

@@ -170,7 +170,6 @@ class WPMC_List_Table extends WP_List_Table {
     function build_listing_query() {
         $perPage = $this->get_per_page();
         $sortCols = array_keys($this->get_sortable_columns());
-        $sortableFields = array_keys($this->entity->get_sortable_fields());
         $tableName = $this->entity->get_table();
         $defaultOrder = $this->entity->get_default_order();
 
@@ -183,7 +182,7 @@ class WPMC_List_Table extends WP_List_Table {
         $qb = $db->buildMainQuery($this->entity);
 
         if ( !empty($search) ) {
-            $qb->search($sortableFields, $search);
+            $qb->search($this->getSearchableColumns(), $search);
         }
 
         $qb->orderBy("{$tableName}.{$orderBy}", $order);
@@ -191,5 +190,22 @@ class WPMC_List_Table extends WP_List_Table {
         $qb->offset($paged);
 
         return apply_filters('wpmc_list_query', $qb, $this->entity);
+    }
+
+    function getSearchableColumns() {
+        $tableName = $this->entity->get_table();
+        $db = new WPMC_Database();
+        $cols = [];
+
+        foreach ( array_keys($this->entity->get_sortable_fields()) as $col ) {
+            if ( $db->tableHasColumn($tableName, $col) ) {
+                $column = $db->getTableColumn($tableName, $col);
+                if ( preg_match('/(varchar|text)/', $column['DATA_TYPE']) ) {
+                    $cols[] = "{$tableName}.{$col}";
+                }
+            }
+        }
+
+        return $cols;
     }
 }

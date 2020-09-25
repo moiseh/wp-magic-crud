@@ -18,7 +18,7 @@ class WPMC_Form {
     }
 
     function metabox_identifier() {
-        return $this->entity->identifier() . '_form_meta_box';
+        return $this->entity->get_identifier() . '_form_meta_box';
     }
 
     function execute_page_handler() {
@@ -43,7 +43,7 @@ class WPMC_Form {
         $title = $this->entity->is_updating() ? __('Manage', 'wp-magic-crud') : __('Add', 'wp-magic-crud');
         $title .= ' ' . $singular;
 
-        $identifier = $this->entity->identifier();
+        $identifier = $this->entity->get_identifier();
         $formHandler = array($this, 'render_form_content');
         $metaIdentifier = $this->metabox_identifier();
         add_meta_box($metaIdentifier, $title, $formHandler, $identifier, 'normal', 'default');
