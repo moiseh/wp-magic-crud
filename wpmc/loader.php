@@ -10,9 +10,9 @@ if ( !class_exists('WPMC_Entity')) {
 if ( !class_exists('WPMC_Form')) {
     require_once __DIR__ . '/WPMC_Form.php';
 }
-if ( !class_exists('WPMC_Field')) {
-    require_once __DIR__ . '/WPMC_Field.php';
-    $fieldCommon = new WPMC_Field();
+if ( !class_exists('WPMC_Field_Common')) {
+    require_once __DIR__ . '/WPMC_Field_Common.php';
+    $fieldCommon = new WPMC_Field_Common();
     $fieldCommon->initHooks();
 }
 if ( !class_exists('WPMC_Field_OneToMany')) {

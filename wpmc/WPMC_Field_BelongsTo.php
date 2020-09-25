@@ -42,10 +42,10 @@ class WPMC_Field_BelongsTo {
     function renderField($field = []) {
         if ( $field['type'] == 'belongs_to' ) {
             $refEntity = wpmc_get_entity($field['ref_entity']);
-            $field['choices'] = $refEntity->build_options();
 
-            $fieldHelper = new WPMC_Field();
-            echo $fieldHelper->select($field);
+            $field['type'] = 'select';
+            $field['choices'] = $refEntity->build_options();
+            wpmc_render_field($field);
         }
     }
 

@@ -1,9 +1,33 @@
 <?php
-class WPMC_Field {
+class WPMC_Field_Common {
     public function initHooks() {
         add_filter('wpmc_validation_errors', array($this, 'validateFormData'), 10, 2);
         add_action('wpmc_field_render', array($this, 'renderCommonFieldTypes'), 10, 2);
         add_action('wpmc_db_creating_fields', array($this, 'defineDbCommonFieldTypes'), 10, 2);
+    }
+
+
+    function renderCommonFieldTypes($field = [], $entity = null) {
+        switch($field['type']) {
+            case 'textarea':
+                $this->textarea($field);
+            break;
+            case 'integer':
+                $this->integer($field);
+            break;
+            case 'email':
+                $this->email($field);
+            break;
+            case 'text':
+                $this->text($field);
+            break;
+            case 'checkbox_multi':
+                $this->checkbox_multi($field);
+            break;
+            case 'select':
+                $this->select($field);
+            break;
+        }
     }
 
     function validateFormData($errors, $fields = []) {
@@ -49,29 +73,6 @@ class WPMC_Field {
         return $fields;
     }
 
-    function renderCommonFieldTypes($field = [], $entity = null) {
-        switch($field['type']) {
-            case 'textarea':
-                $this->textarea($field);
-            break;
-            case 'integer':
-                $this->integer($field);
-            break;
-            case 'email':
-                $this->email($field);
-            break;
-            case 'text':
-                $this->text($field);
-            break;
-            case 'checkbox_multi':
-                $this->checkbox_multi($field);
-            break;
-            case 'select':
-                $this->select($field);
-            break;
-        }
-    }
-
     public function text($field) {
         $attr = $this->buildHtmlAttributes($field);
 
@@ -112,11 +113,15 @@ class WPMC_Field {
     }
 
     public function select($field) {
+        $isRequired = ( !empty($field['required']) && $field['required'] );
         $values = $field['choices'];
         $attr = $this->buildHtmlAttributes($field);
 
         ?>
         <select <?php echo $attr; ?>>
+            <?php if ( !$isRequired ): ?>
+                <option></option>
+            <?php endif; ?>
             <?php foreach ( $values as $key => $label ): ?>
                 <?php $selected = ( $key == $field['value'] ) ? 'selected' : ''; ?> 
                 <option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo $label; ?></option>

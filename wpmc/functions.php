@@ -71,6 +71,12 @@ if ( !function_exists('wpmc_get_current_entity')) {
     }
 }
 
+if ( !function_exists('wpmc_entity_home')) {
+    function wpmc_entity_home() {
+        return wpmc_get_current_entity()->listing_url();
+    }
+}
+
 if ( !function_exists('wpmc_request_ids')) {
     function wpmc_request_ids() {
         $ids = [];
@@ -190,41 +196,39 @@ if ( !function_exists('wpmc_flash_render') ) {
 }
 // End of WPFlashMessages
 
+if ( !function_exists('wpmc_actions_form_posted') ) {
+    function wpmc_actions_form_posted() {
+        return isset($_REQUEST['nonce']) && wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__));
+    }
+}
+
 if ( !function_exists('wpmc_default_action_form') ) {
-    function wpmc_default_action_form($postCallback, $formCallback, $title = null) {
-        if ( isset($_REQUEST['nonce']) && wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__)) ) {
-            $postCallback();
-        }
-    
+    function wpmc_default_action_form($options = []) {
         $entity = wpmc_get_current_entity();
         $ids = wpmc_request_ids();
         $listingUrl = $entity->listing_url();
         $action = $_REQUEST['action'];
         $backLabel = __('Back to', 'wp-magic-crud') . ' ' . $entity->get_plural();
-        // $actions = apply_filters('wpmc_list_actions', [], ['id'=>0]);
-        // $labelAction = strip_tags($actions[$action]);
-    
+
         ?>
         <div class="wrap">
             <div class="icon32 icon32-posts-post" id="icon-edit">
-            <br></div>
+                <br/>
+            </div>
             <?php wpmc_flash_render(); ?>
             <form action="<?php echo get_current_page_url(); ?>" method="POST">
                 <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
                 <input type="hidden" name="action" value="<?php echo $action; ?>"/>
                 <input type="hidden" name="id" value="<?php echo implode(',', $ids); ?>"/>
-                <?php if ( !empty($title) ): ?>
+                <?php if ( !empty($options['title']) ): ?>
                     <h2>
-                        <?php echo $title; ?>
+                        <?php echo $options['title']; ?>
                         <a class="add-new-h2" href="<?php echo $listingUrl; ?>">
                             <?php echo $backLabel; ?>
                         </a>
                     </h2>
-                    <h4>
-                        <?php echo sprintf(__('Total records that will be affected: %s'), count($ids)); ?>
-                    </h4>
                 <?php endif; ?>
-                <?php $formCallback(); ?>
+                <?php $options['content'](); ?>
             </form>
         </div>
         <?php
