@@ -165,7 +165,9 @@ class WPMC_List_Table extends WP_List_Table {
 
 
     function display() {
-        if ( empty($this->items) ) {
+        $searching = !empty($_REQUEST['s']);
+
+        if ( empty($this->items) && !$searching ) {
             $plural = $this->entity->get_plural();
             $singular = $this->entity->get_singular();
             $canCreate = $this->entity->can_create();
@@ -200,7 +202,7 @@ class WPMC_List_Table extends WP_List_Table {
         $paged = isset($_REQUEST['paged']) ? max(0, intval($_REQUEST['paged']) - 1) : 0;
         $orderBy = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], $sortCols)) ? $_REQUEST['orderby'] : $defaultOrder;
         $order = (isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc'))) ? $_REQUEST['order'] : 'asc';
-        $search = ( !empty($_REQUEST['s']) && $this->entity->is_listing() ) ? sanitize_text_field($_REQUEST['s']) : '';
+        $search = !empty($_REQUEST['s']) ? sanitize_text_field($_REQUEST['s']) : '';
 
         $db = new WPMC_Database();
         $qb = $db->buildMainQuery($this->entity);
