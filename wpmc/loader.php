@@ -62,3 +62,10 @@ add_action('admin_enqueue_scripts', function(){
     wp_enqueue_style('wpmc-styles', plugins_url('/wpmc/styles.css', dirname(__FILE__) ));
 });
 
+// check admin page title
+// add_filter('admin_title', function($admin_title, $title) {
+//     if ( empty($title) ) {
+//     }
+
+//     return $title;
+// }, 10, 2);

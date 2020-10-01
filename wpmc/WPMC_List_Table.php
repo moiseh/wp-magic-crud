@@ -138,8 +138,7 @@ class WPMC_List_Table extends WP_List_Table {
         <?php
     }
 
-    function prepare_items()
-    {
+    function prepare_items() {
         $columns = [];
         $columns['cb'] = '<input type="checkbox" />';
         $columns += $this->get_columns();
@@ -163,6 +162,31 @@ class WPMC_List_Table extends WP_List_Table {
             'total_pages' => ceil($total_items / $per_page) 
         ));
     }
+
+
+    function display() {
+        if ( empty($this->items) ) {
+            $plural = $this->entity->get_plural();
+            $singular = $this->entity->get_singular();
+            $canCreate = $this->entity->can_create();
+            $createUrl = $this->entity->create_url();
+
+            ?>
+            <h2 class="entity-list-noitems">
+                <?php echo sprintf(__('There are no %s to display yet.'), $plural); ?>
+            </h2>
+            <?php if ( $canCreate ): ?>
+                <a href="<?php echo $createUrl; ?>" class="entity-create-first">
+                    <?php echo sprintf(__('Click here to create the first %s.'), $singular); ?>
+                </a>
+            <?php endif; ?>
+            <?php
+        }
+        else {
+            parent::display();
+        }
+    }
+
 
     /**
      * @return WPMC_Query_Builder

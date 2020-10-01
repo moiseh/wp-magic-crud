@@ -53,3 +53,11 @@ div.form3bc input {
 .form-meta-box input, textarea {
     width: auto;
 }
+
+.entity-list-noitems {
+    font-size: 22px;
+}
+
+.entity-create-first {
+    font-size: 18px;
+}
