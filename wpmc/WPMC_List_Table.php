@@ -122,7 +122,7 @@ class WPMC_List_Table extends WP_List_Table {
                 <?php echo $plural; ?>
                 <?php if ( $canCreate ): ?>
                     <a class="add-new-h2" href="<?php echo $createUrl; ?>">
-                        <?php _e('Add new', 'wp-magic-crud')?>
+                        <?php _e('Create new', 'wp-magic-crud')?>
                     </a>
                 <?php endif; ?>
             </h2>

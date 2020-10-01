@@ -8,6 +8,7 @@ class WPMC_Entity {
     private $singular;
     private $plural;
     private $menuIcon;
+    private $parentMenu;
 
     function __construct($options = array()) {
         if ( !empty($options['fields']) ) {
@@ -34,6 +35,10 @@ class WPMC_Entity {
             $this->menuIcon = $options['menu_icon'];
         }
         
+        if ( !empty($options['parent_menu']) ) {
+            $this->parentMenu = $options['parent_menu'];
+        }
+
         if ( !empty($options['default_order']) ) {
             $this->defaultOrder = $options['default_order'];
         }
@@ -196,16 +201,26 @@ class WPMC_Entity {
         }
 
         $capability = 'activate_plugins';
-        $addLabel = __('Add new', 'wp-magic-crud');
+        $addLabel = __('Create new', 'wp-magic-crud');
         $listingPage = array($this, 'listing_page_handler');
         $formPage = array($this, 'form_page_handler');
         $plural = $this->get_plural();
 
-        add_menu_page($plural, $plural, $capability, $identifier, $listingPage, $this->menuIcon);
-        add_submenu_page($identifier, $plural, $plural, $capability, $identifier, $listingPage);
-       
+        if ( !empty($this->parentMenu) ) {
+            add_submenu_page($this->parentMenu, $plural, $plural, $capability, $identifier, $listingPage);    
+        }
+        else {
+            add_menu_page($plural, $plural, $capability, $identifier, $listingPage, $this->menuIcon);
+            add_submenu_page($identifier, $plural, $plural, $capability, $identifier, $listingPage);
+        }
+
         if ( $this->can_create() ) {
-            add_submenu_page($identifier, $addLabel, $addLabel, $capability, $this->form_page_identifier(), $formPage);
+            if ( !empty($this->parentMenu) ) {
+                add_submenu_page($identifier, null, null, $capability, $this->form_page_identifier(), $formPage);
+            }
+            else {
+                add_submenu_page($identifier, $addLabel, $addLabel, $capability, $this->form_page_identifier(), $formPage);
+            }
         }
     }
 
