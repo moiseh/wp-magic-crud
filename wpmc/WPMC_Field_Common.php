@@ -30,6 +30,7 @@ class WPMC_Field_Common {
             break;
             case 'boolean':
                 $field['choices'] = [1 => __('Yes'), 0 => __('No')];
+                $field['required'] = true;
                 $this->select($field);
             break;
         }
@@ -39,12 +40,19 @@ class WPMC_Field_Common {
         foreach ( $entity->get_listable_fields() as $name => $field ) {
             switch ( $field['type'] ) {
                 case 'select':
-
                     if ( !empty($field['choices']) ) {
                         foreach ( $rows as $key => $row ) {
                             if ( !empty($row[$name]) && !empty($field['choices'][ $row[$name] ]) ) {
                                 $rows[$key][$name] = $field['choices'][ $row[$name] ];
                             }
+                        }
+                    }
+                break;
+
+                case 'boolean':
+                    foreach ( $rows as $key => $row ) {
+                        if ( !empty($row[$name]) ) {
+                            $rows[$key][$name] = $row[$name] ? __('Yes', 'wp-magic-crud') : __('No', 'wp-magic-crud');
                         }
                     }
                 break;

@@ -61,3 +61,7 @@ div.form3bc input {
 .entity-create-first {
     font-size: 18px;
 }
+
+.align-right {
+    float: right;
+}

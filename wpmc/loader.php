@@ -42,9 +42,10 @@ add_action('admin_menu', function(){
     $entities = wpmc_load_app_entities($arrEntities);
 
     // create entities database structure on-the-fly
-    $db = new WPMC_Database();
-    if ( apply_filters('wpmc_run_create_tables', false) || $db->checkEntitiesChanged($arrEntities) ) {
+    if ( apply_filters('wpmc_run_create_tables', false) ) {
+        $db = new WPMC_Database();
         $db->migrateEntityTables($entities);
+
         do_action('wpmc_after_create_tables');
     }
 
@@ -60,6 +61,7 @@ add_action('admin_menu', function(){
 // admin styles
 add_action('admin_enqueue_scripts', function(){
     wp_enqueue_style('wpmc-styles', plugins_url('/wpmc/styles.css', dirname(__FILE__) ));
+    wp_enqueue_script('wpmc-scripts', plugins_url('/wpmc/scripts.js', dirname(__FILE__)));
 });
 
 // check admin page title

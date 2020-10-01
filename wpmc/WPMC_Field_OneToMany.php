@@ -153,25 +153,7 @@ class WPMC_Field_OneToMany {
         </textarea>
         <script>
             jQuery(document).ready(function ($) {
-                $(document).on("click", ".wpmc-line-add", function (e){
-                    var new_rule_index = 0;
-                    var group_index = $(".entity-field-row").length;
-                    var raw_tpl = $("#wpmc-first-line-tpl").val();
-                    var replaced = raw_tpl.replace(/{index}/g, group_index);
-                    // var html = '<table class="wpmc-onetomany-table widefat"><tbody>' + replaced + '</tbody></table>';
-                    
-                    $(".wpmc-onetomany-container-table tbody").append(replaced);
-                });
-
-                $(document).on("click", ".wpmc-line-remove", function (e){
-                    //If this is the last rule in the group, we remove the entire group
-                    if ($(this).parent().parent().parent().find("tr").length == 1) {
-                        $(this).parent().parent().parent().parent().remove();
-                    }
-                    else {
-                        $(this).parent().parent().remove();
-                    }
-                });
+                // see scripts.js OneToMany section
             });
         </script>
         <?php
