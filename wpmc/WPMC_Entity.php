@@ -9,6 +9,7 @@ class WPMC_Entity {
     private $plural;
     private $menuIcon;
     private $parentMenu;
+    private $displayMenu;
 
     function __construct($options = array()) {
         if ( !empty($options['fields']) ) {
@@ -37,6 +38,10 @@ class WPMC_Entity {
         
         if ( !empty($options['parent_menu']) ) {
             $this->parentMenu = $options['parent_menu'];
+        }
+
+        if ( isset($options['display_menu']) ) {
+            $this->displayMenu = $options['display_menu'];
         }
 
         if ( !empty($options['default_order']) ) {
@@ -196,7 +201,7 @@ class WPMC_Entity {
     function admin_menu() {        
         $identifier = $this->get_identifier();
 
-        if ( !apply_filters("wpmc_show_menu", true, $this) ) {
+        if ( $this->displayMenu === false ) {
             return;
         }
 

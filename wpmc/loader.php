@@ -45,7 +45,6 @@ add_action('admin_menu', function(){
     $db = new WPMC_Database();
     if ( apply_filters('wpmc_run_create_tables', false) || $db->checkEntitiesChanged($arrEntities) ) {
         $db->migrateEntityTables($entities);
-
         do_action('wpmc_after_create_tables');
     }
 
@@ -57,7 +56,6 @@ add_action('admin_menu', function(){
 
     do_action('wpmc_loaded');
 }, 500);
-
 
 // admin styles
 add_action('admin_enqueue_scripts', function(){

@@ -4,6 +4,7 @@ class WPMC_Field_Common {
         add_filter('wpmc_validation_errors', array($this, 'validateFormData'), 10, 2);
         add_action('wpmc_field_render', array($this, 'renderCommonFieldTypes'), 10, 2);
         add_action('wpmc_db_creating_fields', array($this, 'defineDbCommonFieldTypes'), 10, 2);
+        add_filter('wpmc_entity_list', array($this, 'entityList'), 10, 2);
     }
 
 
@@ -28,6 +29,25 @@ class WPMC_Field_Common {
                 $this->select($field);
             break;
         }
+    }
+
+    function entityList($rows, WPMC_Entity $entity) {
+        foreach ( $entity->get_listable_fields() as $name => $field ) {
+            switch ( $field['type'] ) {
+                case 'select':
+
+                    if ( !empty($field['choices']) ) {
+                        foreach ( $rows as $key => $row ) {
+                            if ( !empty($row[$name]) && !empty($field['choices'][ $row[$name] ]) ) {
+                                $rows[$key][$name] = $field['choices'][ $row[$name] ];
+                            }
+                        }
+                    }
+                break;
+            }
+        }
+
+        return $rows;
     }
 
     function validateFormData($errors, $fields = []) {
@@ -120,7 +140,7 @@ class WPMC_Field_Common {
         ?>
         <select <?php echo $attr; ?>>
             <?php if ( !$isRequired ): ?>
-                <option></option>
+                <option value=""><?php echo sprintf('< %s >',__('none')); ?></option>
             <?php endif; ?>
             <?php foreach ( $values as $key => $label ): ?>
                 <?php $selected = ( $key == $field['value'] ) ? 'selected' : ''; ?> 
