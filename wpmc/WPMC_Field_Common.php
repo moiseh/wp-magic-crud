@@ -28,6 +28,10 @@ class WPMC_Field_Common {
             case 'select':
                 $this->select($field);
             break;
+            case 'boolean':
+                $field['choices'] = [1 => __('Yes'), 0 => __('No')];
+                $this->select($field);
+            break;
         }
     }
 
@@ -84,6 +88,9 @@ class WPMC_Field_Common {
                 case 'integer':
                     $fields[$name]['db_type'] = 'INTEGER';
                 break;
+                case 'boolean':
+                    $fields[$name]['db_type'] = 'BOOLEAN';
+                break;
                 case 'text':
                     $fields[$name]['db_type'] = 'VARCHAR(255)';
                 break;
@@ -135,6 +142,7 @@ class WPMC_Field_Common {
     public function select($field) {
         $isRequired = ( !empty($field['required']) && $field['required'] );
         $values = $field['choices'];
+        $value = $this->getDefaultValue($field);
         $attr = $this->buildHtmlAttributes($field);
 
         ?>
@@ -143,7 +151,7 @@ class WPMC_Field_Common {
                 <option value=""><?php echo sprintf('< %s >',__('none')); ?></option>
             <?php endif; ?>
             <?php foreach ( $values as $key => $label ): ?>
-                <?php $selected = ( $key == $field['value'] ) ? 'selected' : ''; ?> 
+                <?php $selected = ( $key == $value ) ? 'selected' : ''; ?> 
                 <option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo $label; ?></option>
             <?php endforeach; ?>
         </select>
@@ -167,6 +175,18 @@ class WPMC_Field_Common {
         <?php endforeach; ?>
         </div>
         <?php
+    }
+
+    public function getDefaultValue($field) {
+        if ( !empty($field['value']) ) {
+            return $field['value'];
+        }
+
+        if ( !empty($field['default']) ) {
+            return $field['default'];
+        }
+
+        return null;
     }
 
     private function buildHtmlAttributes($field = []) {

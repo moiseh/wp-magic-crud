@@ -24,12 +24,12 @@ div.form3bc input {
     margin-right: 20px;
 }
 
-.wad-rules-table:not(:first-of-type)
+.wpmc-onetomany-table:not(:first-of-type)
 {
     margin-top: 10px;
 }
 
-.wad-remove-rule {
+.wpmc-line-remove {
     background: url(../wpmc/sprite.png) -66px -116px no-repeat #fff;
     display: block;
     height: 18px;
@@ -38,7 +38,7 @@ div.form3bc input {
     box-shadow: 0 0 3px rgba(0,0,0,0.3);
 }
 
-.wad-rules-table-container {
+.wpmc-onetomany-container-table {
     padding-bottom: 5px;
 }
 

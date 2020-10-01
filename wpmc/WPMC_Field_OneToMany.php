@@ -134,8 +134,8 @@ class WPMC_Field_OneToMany {
         }
 
         ?>
-        <div class="wad-rules-table-container">
-            <table class="wad-rules-table widefat">
+        <div class="wpmc-onetomany-container-table">
+            <table class="wpmc-onetomany-table widefat">
                 <tbody>
                     <?php
                     foreach ($refItems as $index => $item) {
@@ -147,23 +147,23 @@ class WPMC_Field_OneToMany {
                 </tbody>
             </table>
         </div>
-        <a class="button wad-add-group mg-top"><?php echo $addTitle; ?></a>
-        <textarea id='wad-first-rule-tpl' style='display: none;'>
+        <a class="button wpmc-line-add mg-top"><?php echo $addTitle; ?></a>
+        <textarea id='wpmc-first-line-tpl' style='display: none;'>
             <?php echo $templateHtml; ?>
         </textarea>
         <script>
             jQuery(document).ready(function ($) {
-                $(document).on("click", ".wad-add-group", function (e){
+                $(document).on("click", ".wpmc-line-add", function (e){
                     var new_rule_index = 0;
                     var group_index = $(".entity-field-row").length;
-                    var raw_tpl = $("#wad-first-rule-tpl").val();
+                    var raw_tpl = $("#wpmc-first-line-tpl").val();
                     var replaced = raw_tpl.replace(/{index}/g, group_index);
-                    // var html = '<table class="wad-rules-table widefat"><tbody>' + replaced + '</tbody></table>';
+                    // var html = '<table class="wpmc-onetomany-table widefat"><tbody>' + replaced + '</tbody></table>';
                     
-                    $(".wad-rules-table-container tbody").append(replaced);
+                    $(".wpmc-onetomany-container-table tbody").append(replaced);
                 });
 
-                $(document).on("click", ".wad-remove-rule", function (e){
+                $(document).on("click", ".wpmc-line-remove", function (e){
                     //If this is the last rule in the group, we remove the entire group
                     if ($(this).parent().parent().parent().find("tr").length == 1) {
                         $(this).parent().parent().parent().parent().remove();
@@ -208,7 +208,7 @@ class WPMC_Field_OneToMany {
             }
             ?>
             <td class="remove">
-                <a class="wad-remove-rule acf-button-remove"></a>
+                <a class="wpmc-line-remove"></a>
             </td>
         </tr>
         <?php
