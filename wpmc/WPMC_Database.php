@@ -38,7 +38,7 @@ class WPMC_Database {
 
         $sql = "CREATE TABLE {$table} (
             id int(11) NOT NULL AUTO_INCREMENT,
-            `user_id` INTEGER REFERENCES users(id),
+            `user_id` INTEGER,
             " . implode("\n", $stmt) . "
             PRIMARY KEY  (id)
         );";
@@ -47,24 +47,33 @@ class WPMC_Database {
         do_action('wpmc_db_table_created', $table, $fields);
     }
 
+    public function checkEntitiesChanged($arrEntities) {
+        $hash = get_site_option('wpmc_entities_hash');
+        $newHash = md5(serialize($arrEntities));
+
+        if ( $hash != $newHash ) {
+            update_option('wpmc_entities_hash', $newHash); 
+            return true;
+        }
+
+        return false;
+    }
 
     public function migrateEntityTables($entities) {
-        $versions = (array) get_site_option('wpbc_db_version');
+        // $versions = (array) get_site_option('wpbc_db_version');
 
         foreach ( $entities as $key => $entity ) {
             if ( $entity instanceof WPMC_Entity ) {
-                $fieldsHash = md5(serialize($entity->get_fields()));
-
-                if ( empty($versions[$key]) || ( $fieldsHash != $versions[$key] ) ) {
-                    $versions[$key] = $fieldsHash;
-    
+                // $fieldsHash = md5(serialize($entity->get_fields()));
+                // if ( empty($versions[$key]) || ( $fieldsHash != $versions[$key] ) ) {
+                    // $versions[$key] = $fieldsHash;
                     $this->doCreateTable($entity->get_table(), $entity->get_fields());
-                }
+                // }
             }
         }
 
         // update db version
-        update_option('wpbc_db_version', $versions); 
+        // update_option('wpbc_db_version', $versions); 
     }
 
     public function saveData($tableName, $item) {

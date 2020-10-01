@@ -15,7 +15,7 @@ class WPMC_Field_BelongsTo {
                     $refTable = $entity->get_table();
 
                     $fields[$name]['db_type'] = 'INTEGER';
-                    $fields[$name]['db_references'] = "REFERENCES {$refTable}(id)";
+                    // $fields[$name]['db_references'] = "REFERENCES {$refTable}(id)";
                 break;
             }
         }

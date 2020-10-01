@@ -15,18 +15,16 @@ if ( !function_exists('wpmc_load_app_entities')) {
     /**
      * @return WPMC_Entity[]
      */
-    function wpmc_load_app_entities() {
+    function wpmc_load_app_entities($arrEntities = array()) {
         global $wpmc_entities;
 
         $wpmc_entities = [];
-        $entities = apply_filters('wpmc_entities', array());
+        $entities = $arrEntities;
         
         foreach ( $entities as $entity => $options ) {
             $options['identifier'] = $entity;
 
             $obj = new WPMC_Entity($options);
-            $obj->init_hooks();
-        
             $wpmc_entities[$entity] = $obj;
         }
 

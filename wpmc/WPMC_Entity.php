@@ -43,9 +43,9 @@ class WPMC_Entity {
         }
     }
 
-    function init_hooks() {
-        add_action('admin_menu', array($this, 'admin_menu'));
-    }
+    // function init_hooks() {
+    //     add_action('admin_menu', array($this, 'admin_menu'));
+    // }
 
     function get_identifier() {
         return $this->identifier;
