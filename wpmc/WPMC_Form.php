@@ -59,14 +59,10 @@ class WPMC_Form {
                     <?php _e('back to list', 'wp-magic-crud')?>
                 </a>
             </h2>
-
             <?php wpmc_flash_render(); ?>
-
             <form id="form_<?php echo $identifier; ?>" class="form-meta-box" method="POST">
                 <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
-                
                 <input type="hidden" name="id" value="<?php echo $item['id'] ?>"/>
-
                 <div class="metabox-holder" id="poststuff">
                     <div id="post-body">
                         <div id="post-body-content">
@@ -164,11 +160,16 @@ class WPMC_Form {
     }
 
     function render_form_content() {
+        do_action('wpmc_fields_render_before', $this->entity);
+
         foreach ( $this->entity->get_fields() as $name => $field ) {
             $this->render_field($name);
         }
 
+        do_action('wpmc_fields_render_after', $this->entity);
         wpmc_submit_button();
+
+        do_action('wpmc_form_render_after', $this->entity);
     }
 
     function render_field($name) {

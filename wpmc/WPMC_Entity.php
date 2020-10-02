@@ -77,8 +77,18 @@ class WPMC_Entity {
         return $this->displayField;
     }
 
-    function get_default_order() {
-        return $this->defaultOrder;
+    function get_default_order_col() {
+        return current(explode(' ', $this->defaultOrder));
+    }
+
+    function get_default_order_mode() {
+        $exp = explode(' ', $this->defaultOrder);
+        
+        if ( count($exp) > 1 ) {
+            return $exp[1];
+        }
+
+        return 'ASC';
     }
 
     function get_fields() {

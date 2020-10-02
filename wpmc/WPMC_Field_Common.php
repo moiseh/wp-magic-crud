@@ -7,7 +7,6 @@ class WPMC_Field_Common {
         add_filter('wpmc_entity_list', array($this, 'entityList'), 10, 2);
     }
 
-
     function renderCommonFieldTypes($field = [], $entity = null) {
         switch($field['type']) {
             case 'textarea':
@@ -27,6 +26,9 @@ class WPMC_Field_Common {
             break;
             case 'select':
                 $this->select($field);
+            break;
+            case 'datetime':
+                // $this->text($field);
             break;
             case 'boolean':
                 $field['choices'] = [1 => __('Yes'), 0 => __('No')];
@@ -98,6 +100,9 @@ class WPMC_Field_Common {
                 break;
                 case 'boolean':
                     $fields[$name]['db_type'] = 'BOOLEAN';
+                break;
+                case 'datetime':
+                    $fields[$name]['db_type'] = 'DATETIME';
                 break;
                 case 'text':
                     $fields[$name]['db_type'] = 'VARCHAR(255)';

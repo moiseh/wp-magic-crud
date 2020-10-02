@@ -189,7 +189,6 @@ class WPMC_List_Table extends WP_List_Table {
         }
     }
 
-
     /**
      * @return WPMC_Query_Builder
      */
@@ -197,11 +196,12 @@ class WPMC_List_Table extends WP_List_Table {
         $perPage = $this->get_per_page();
         $sortCols = array_keys($this->get_sortable_columns());
         $tableName = $this->entity->get_table();
-        $defaultOrder = $this->entity->get_default_order();
+        $defaultOrder = $this->entity->get_default_order_col();
+        $orderMode = $this->entity->get_default_order_mode();
 
         $paged = isset($_REQUEST['paged']) ? max(0, intval($_REQUEST['paged']) - 1) : 0;
         $orderBy = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], $sortCols)) ? $_REQUEST['orderby'] : $defaultOrder;
-        $order = (isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc'))) ? $_REQUEST['order'] : 'asc';
+        $order = (isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc'))) ? $_REQUEST['order'] : $orderMode;
         $search = !empty($_REQUEST['s']) ? sanitize_text_field($_REQUEST['s']) : '';
 
         $db = new WPMC_Database();
