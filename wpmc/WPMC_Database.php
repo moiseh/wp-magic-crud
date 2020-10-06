@@ -121,6 +121,9 @@ class WPMC_Database {
         return apply_filters('wpmc_entity_find', $row, $entity);
     }
 
+    /**
+     * @return WPMC_Query_Builder
+     */
     public function buildMainQuery(WPMC_Entity $entity) {
 
         $qb = wpmc_query();

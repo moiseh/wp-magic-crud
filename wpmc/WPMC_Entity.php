@@ -172,8 +172,16 @@ class WPMC_Entity {
         return $this->get_identifier() . '_form';
     }
 
-    function listing_url() {
-        return get_admin_url(get_current_blog_id(), 'admin.php?page='.$this->get_identifier());
+    function listing_url($filters = array()) {
+        $url = 'admin.php?page='.$this->get_identifier();
+
+        // filters used for specific columns
+        // check WPMC_List_Table->build_listing_query() method to check the filter logic
+        if ( !empty($filters) ) {
+            $url .= '&' . http_build_query($filters);
+        }
+
+        return get_admin_url(get_current_blog_id(), $url);
     }
 
     function create_url() {

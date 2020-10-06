@@ -194,6 +194,7 @@ class WPMC_List_Table extends WP_List_Table {
      */
     function build_listing_query() {
         $perPage = $this->get_per_page();
+        $fields = $this->entity->get_fields();
         $sortCols = array_keys($this->get_sortable_columns());
         $tableName = $this->entity->get_table();
         $defaultOrder = $this->entity->get_default_order_col();
@@ -207,8 +208,16 @@ class WPMC_List_Table extends WP_List_Table {
         $db = new WPMC_Database();
         $qb = $db->buildMainQuery($this->entity);
 
+        // check generic search box
         if ( !empty($search) ) {
             $qb->search($this->getSearchableColumns(), $search);
+        }
+
+        // check if there something specific column filter parameter
+        foreach ( $_GET as $key => $val ) {
+            if ( !empty($fields[$key]) ) {
+                $qb->andWhere($key, '=', sanitize_text_field($val));
+            }
         }
 
         $qb->orderBy("{$tableName}.{$orderBy}", $order);
