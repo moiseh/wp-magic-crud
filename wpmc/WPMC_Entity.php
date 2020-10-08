@@ -78,7 +78,7 @@ class WPMC_Entity {
     }
 
     function get_display_menu() {
-        return $this->displayMenu;
+        return ( $this->displayMenu !== false );
     }
 
     function get_default_order_col() {
@@ -223,7 +223,7 @@ class WPMC_Entity {
     function admin_menu() {        
         $identifier = $this->get_identifier();
 
-        if ( $this->displayMenu === false ) {
+        if ( !$this->get_display_menu() ) {
             return;
         }
 
