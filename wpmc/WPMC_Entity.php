@@ -77,6 +77,10 @@ class WPMC_Entity {
         return $this->displayField;
     }
 
+    function get_display_menu() {
+        return $this->displayMenu;
+    }
+
     function get_default_order_col() {
         return current(explode(' ', $this->defaultOrder));
     }

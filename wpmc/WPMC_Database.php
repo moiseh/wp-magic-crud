@@ -154,7 +154,7 @@ class WPMC_Database {
 
         $table = $entity->get_table();
         $displayField = $entity->get_display_field();
-        $defaultOrder = $entity->get_default_order();
+        $defaultOrder = $entity->get_default_order_col();
 
         $sql = " SELECT id, {$displayField} FROM {$table} ";
 

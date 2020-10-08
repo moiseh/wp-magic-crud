@@ -54,11 +54,15 @@ class WPMC_Field_OneToMany {
                     $items = $this->getRelatedRows($field, $relationId);
                     $suffix = ( count($items) > 1 ) ? $refEntity->get_plural() : $refEntity->get_singular();
 
-                    // create filter to display only referenced items in target entity list
-                    $filters = [ $fieldRefCol => $relationId ];
-                    $listUrl = $refEntity->listing_url($filters);
-
-                    $parentRows[$key][$name] = sprintf('<a href="%s">%s %s</a>', $listUrl, count($items), $suffix);
+                    if ( $refEntity->get_display_menu() ) {
+                        // create filter to display only referenced items in target entity list
+                        $filters = [ $fieldRefCol => $relationId ];
+                        $listUrl = $refEntity->listing_url($filters);
+                        $parentRows[$key][$name] = sprintf('<a href="%s">%s %s</a>', $listUrl, count($items), $suffix);
+                    }
+                    else {
+                        $parentRows[$key][$name] = sprintf('%s %s', count($items), $suffix);
+                    }
                     
                     // $parentRows[$key][$name] = $this->buildEntityListingTable($field, $items);
                 }
