@@ -80,7 +80,7 @@ if ( !function_exists('wpmc_request_ids')) {
         $ids = [];
 
         if ( !empty($_REQUEST['id']) ) {
-            $ids = is_array($_REQUEST['id']) ? $_REQUEST['id'] : explode(',', sanitize_text_field($_REQUEST['id']));
+            $ids = is_array($_REQUEST['id']) ? array_map('sanitize_text_field', $_REQUEST['id']) : explode(',', sanitize_text_field($_REQUEST['id']));
         }
 
         return $ids;
