@@ -98,7 +98,7 @@ if ( !function_exists('wpmc_field_with_label')) {
         ?>
         <p>
             <label for="<?php echo $field['name']; ?>">
-                <?php echo $field['label']; ?>:
+                <?php echo esc_html__($field['label']); ?>:
             </label>
             <br>
             <?php wpmc_render_field($field); ?>
@@ -112,6 +112,8 @@ if ( !function_exists('wpmc_submit_button')) {
         if ( empty($label) ) {
             $label = __('Save', 'wp-magic-crud');
         }
+
+        $label = esc_html__($label);
 
         ?>
         <input type="submit" value="<?php echo $label; ?>" id="submit" class="button-primary" name="submit">
@@ -170,7 +172,11 @@ if (!class_exists('WPFlashMessages')) {
             if(is_array($flash_messages)) {
                 foreach($flash_messages as $class => $messages) {
                     foreach($messages as $message) {
-                        ?><div class="<?php echo $class; ?>"><p><?php echo $message; ?></p></div><?php
+                        ?>
+                        <div class="<?php echo esc_html__($class); ?>">
+                            <p><?php echo esc_html__($message); ?></p>
+                        </div>
+                        <?php
                     }
                 }
             }
@@ -206,7 +212,7 @@ if ( !function_exists('wpmc_default_action_form') ) {
         $ids = wpmc_request_ids();
         $listingUrl = $entity->listing_url();
         $action = sanitize_text_field($_REQUEST['action']);
-        $backLabel = __('Back to', 'wp-magic-crud') . ' ' . $entity->get_plural();
+        $backLabel = esc_html__(__('Back to', 'wp-magic-crud') . ' ' . $entity->get_plural());
 
         ?>
         <div class="wrap">

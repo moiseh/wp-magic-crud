@@ -167,7 +167,7 @@ class WPMC_Field_Common {
             <?php endif; ?>
             <?php foreach ( $values as $key => $label ): ?>
                 <?php $selected = ( $key == $value ) ? 'selected' : ''; ?> 
-                <option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo $label; ?></option>
+                <option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo esc_html__($label); ?></option>
             <?php endforeach; ?>
         </select>
         <?php
@@ -184,7 +184,7 @@ class WPMC_Field_Common {
             <?php $checked = ( in_array($key, $values) ) ? 'checked' : ''; ?> 
             <label for="<?php echo $key; ?>">
                 <input type="checkbox" name="<?php echo "{$name}[]"; ?>" value="<?php echo $key; ?>" <?php echo $checked; ?>/>
-                <?php echo $label; ?>
+                <?php echo esc_html__($label); ?>
             </label>
             <br/>
         <?php endforeach; ?>

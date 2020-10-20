@@ -112,7 +112,7 @@ class WPMC_List_Table extends WP_List_Table {
 
         $this->prepare_items();
 
-        $plural = $this->entity->get_plural();
+        $plural = esc_html__($this->entity->get_plural());
         $canCreate = $this->entity->can_create();
         $createUrl = $this->entity->create_url();
         $page = sanitize_text_field($_REQUEST['page']);
@@ -170,8 +170,8 @@ class WPMC_List_Table extends WP_List_Table {
         $searching = !empty($_REQUEST['s']);
 
         if ( empty($this->items) && !$searching ) {
-            $plural = $this->entity->get_plural();
-            $singular = $this->entity->get_singular();
+            $plural = esc_html__($this->entity->get_plural());
+            $singular = esc_html__($this->entity->get_singular());
             $canCreate = $this->entity->can_create();
             $createUrl = $this->entity->create_url();
 

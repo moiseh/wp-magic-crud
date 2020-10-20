@@ -192,7 +192,7 @@ class WPMC_Field_OneToMany {
 
                 ?>
                 <td class="">
-                    <label for="<?php echo $name; ?>"><?php echo $field['label']; ?>:</label>
+                    <label for="<?php echo $name; ?>"><?php echo esc_html__($field['label']); ?>:</label>
                     <?php wpmc_render_field($field); ?>
                 </td>
                 <?php
@@ -223,7 +223,7 @@ class WPMC_Field_OneToMany {
             <thead>
             <tr>
                 <?php foreach ( $listableFields as $field ): ?>
-                    <th><?php echo $field['label']; ?></th>
+                    <th><?php echo esc_html__($field['label']); ?></th>
                 <?php endforeach; ?>
             </tr>
             </thead>
