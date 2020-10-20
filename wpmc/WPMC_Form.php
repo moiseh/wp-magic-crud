@@ -132,7 +132,7 @@ class WPMC_Form {
 
         if ( is_null($this->editingRecord) ) {
             if ( $this->entity->is_updating() ) {
-                $id = absint($_REQUEST['id']);
+                $id = absint( sanitize_text_field($_REQUEST['id']) );
                 $row = $this->entity->find_by_id($id);
             }
 

@@ -67,14 +67,16 @@ class WPMC_Field_Common {
     function validateFormData($errors, $fields = []) {
         foreach ( $fields as $name => $field ) {
             if ( !empty($_REQUEST[$name]) ) {
+                $value = sanitize_text_field($_REQUEST[$name]);
+
                 switch($field['type']) {
                     case 'email':
-                        if (!is_email($_REQUEST[$name]) ) {
+                        if (!is_email($value) ) {
                             $errors[$name] = __('Invalid e-mail', 'wp-magic-crud');
                         }
                     break;
                     case 'integer':
-                        if (!is_numeric($_REQUEST[$name]) ) {
+                        if (!is_numeric($value) ) {
                             $errors[$name] = __('Invalid number', 'wp-magic-crud');
                         }
                     break;

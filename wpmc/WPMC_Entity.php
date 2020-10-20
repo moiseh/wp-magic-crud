@@ -205,7 +205,7 @@ class WPMC_Entity {
     }
 
     function current_page() {
-        return !empty($_REQUEST['page']) ? $_REQUEST['page'] : '';
+        return !empty($_REQUEST['page']) ? sanitize_text_field($_REQUEST['page']) : '';
     }
 
     function is_creating() {

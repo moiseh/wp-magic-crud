@@ -57,10 +57,11 @@ class WPMC_List_Table extends WP_List_Table {
 
     function get_actions($item) {
         $updateUrl = $this->entity->update_url($item['id']);
+        $page = sanitize_text_field($_REQUEST['page']);
 
         $actions = array(
             'edit' => sprintf('<a href="%s">%s</a>', $updateUrl, __('Edit', 'wp-magic-crud')),
-            'delete' => sprintf('<a href="?page=%s&action=delete&id=%s" onclick="return confirm(\'%s\')">%s</a>', $_REQUEST['page'], $item['id'], __('Confirm delete?', 'wp-magic-crud'), __('Delete', 'wp-magic-crud')),
+            'delete' => sprintf('<a href="?page=%s&action=delete&id=%s" onclick="return confirm(\'%s\')">%s</a>', $page, $item['id'], __('Confirm delete?', 'wp-magic-crud'), __('Delete', 'wp-magic-crud')),
         );
 
         return apply_filters('wpmc_list_actions', $actions, $item);
@@ -114,6 +115,7 @@ class WPMC_List_Table extends WP_List_Table {
         $plural = $this->entity->get_plural();
         $canCreate = $this->entity->can_create();
         $createUrl = $this->entity->create_url();
+        $page = sanitize_text_field($_REQUEST['page']);
 
         ?>
         <div class="wrap">
@@ -130,7 +132,7 @@ class WPMC_List_Table extends WP_List_Table {
             <?php wpmc_flash_render(); ?>
 
             <form class="" method="POST">
-                <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>"/>
+                <input type="hidden" name="page" value="<?php echo $page; ?>"/>
                 <?php $this->search_box(__('Search'), 'search'); ?>
                 <?php $this->display() ?>
             </form>
@@ -201,8 +203,8 @@ class WPMC_List_Table extends WP_List_Table {
         $orderMode = $this->entity->get_default_order_mode();
 
         $paged = isset($_REQUEST['paged']) ? max(0, intval($_REQUEST['paged']) - 1) : 0;
-        $orderBy = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], $sortCols)) ? $_REQUEST['orderby'] : $defaultOrder;
-        $order = (isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc'))) ? $_REQUEST['order'] : $orderMode;
+        $orderBy = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], $sortCols)) ? sanitize_text_field($_REQUEST['orderby']) : $defaultOrder;
+        $order = (isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc'))) ? sanitize_text_field($_REQUEST['order']) : $orderMode;
         $search = !empty($_REQUEST['s']) ? sanitize_text_field($_REQUEST['s']) : '';
 
         $db = new WPMC_Database();

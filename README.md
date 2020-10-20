@@ -43,7 +43,7 @@ Alternativately you can download using the following link: https://github.com/mo
 You can implement your custom plugin to create CRUD entities or just use it as a library embed in your plugin.
 A full example of how to use can be found in the following repository: https://github.com/moiseh/wpmc-example.git
 
-The first thing to learn is how create Entities and Fields reading the [main example plugin file](https://github.com/moiseh/wpmc-example/blob/master/wpmc-example.php).
+The first thing to learn is how declare Entities and Fields reading the [main example plugin file](https://github.com/moiseh/wpmc-example/blob/master/wpmc-example.php).
 
 ## F.A.Q.
 

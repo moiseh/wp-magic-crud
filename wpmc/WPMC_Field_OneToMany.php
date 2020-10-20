@@ -95,7 +95,12 @@ class WPMC_Field_OneToMany {
                 $relationId = $item['id'];
 
                 if ( !empty($_REQUEST[$fieldRefEntity]) && ( $relationId > 0 ) ) {
-                    $refItems = $_REQUEST[$fieldRefEntity];
+
+                    $refItems = [];
+                    foreach ( (array)$_REQUEST[$fieldRefEntity] as $refItem ) {
+                        $refItems[] = array_map('sanitize_text_field', $refItem);
+                    }
+
                     $refEntity = wpmc_get_entity($fieldRefEntity);
                     $savedIds = [];
 
