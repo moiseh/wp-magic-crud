@@ -41,7 +41,7 @@ class WPMC_List_Table extends WP_List_Table {
     function column_default($item, $col) {
         if ( $col == $this->entity->get_display_field() ) {
             $actions = $this->get_actions($item);
-            return sprintf('%s %s', $item['name'], $this->row_actions($actions));
+            return sprintf('%s %s', $item[$col], $this->row_actions($actions));
         }
 
         return !empty($item[$col]) ? $item[$col] : '';
