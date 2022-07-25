@@ -45,7 +45,7 @@ Alternativately you can download using the following link: https://github.com/mo
 * select
 * text
 * textarea
-* virtual (useful for displaying raw SQL expressions when list data on `WP_List_Table` or REST operations)
+* virtual (useful for displaying raw SQL expressions when retrieving or paginating data)
 
 ## Built-in action types
 * simple (simple actions without input data for quick and no cpu-intensive task executions)
