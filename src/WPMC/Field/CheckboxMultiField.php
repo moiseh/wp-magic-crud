@@ -1,7 +1,6 @@
 <?php
 namespace WPMC\Field;
 
-use Exception;
 use WPMC\FieldBase;
 
 class CheckboxMultiField extends FieldBase
@@ -11,17 +10,6 @@ class CheckboxMultiField extends FieldBase
      * @required
      */
     private $choices;
-
-    public function __construct($field = [])
-    {
-        // if ( empty($field['choices'])) {
-        //     throw new Exception('Missing choices');
-        // }
-
-        // $this->choices = $field['choices'];
-
-        parent::__construct($field);
-    }
 
     private function getChoices()
     {

@@ -1,24 +1,12 @@
 <?php
 namespace WPMC\Field;
 
-use Exception;
 use WPMC\DB\EloquentDBFacade;
 use WPMC\FieldBase;
 
 class VirtualField extends FieldBase
 {
     private $sqlRaw;
-
-    public function __construct($field = [])
-    {
-        // if ( empty($field['sql_raw'])) {
-        //     throw new Exception('Missing sql_raw');
-        // }
-
-        // $this->sqlRaw = $field['sql_raw'];
-
-        parent::__construct($field);
-    }
 
     public function toArray()
     {

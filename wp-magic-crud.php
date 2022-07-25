@@ -4,6 +4,7 @@
 * Description: Magic admin CRUDs for WordPress
 * Version:     1.0
 * Author:      Moises Heberle
+* Author URI:  https://pluggablesoft.com/
 * License:     GPLv2 or later
 * License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -23,12 +24,15 @@ register_activation_hook( __FILE__, function(){
 });
 
 add_action('init', function () {
+    // load ActionScheduler library
+    require_once __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
+
     if ( psNeedScheduleCron() ) {
         if ( !as_has_scheduled_action( 'psoft_cruds_sync_1' ) ) {
             as_schedule_recurring_action( time(), ( MINUTE_IN_SECONDS * 20 ), 'psoft_cruds_sync_1' );
         }
     }
-});
+}, -1000);
 
 // ActionScheduler
 add_action('psoft_cruds_sync_1', function(){

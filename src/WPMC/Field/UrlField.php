@@ -9,15 +9,6 @@ class UrlField extends TextField
      */
     private $target;
 
-    public function __construct($field = [])
-    {
-        // if ( isset($field['target'])) {
-        //     $this->target = $field['target'];
-        // }
-
-        parent::__construct($field);
-    }
-
     public function toArray()
     {
         $arr = parent::toArray();

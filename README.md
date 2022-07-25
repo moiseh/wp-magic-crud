@@ -8,8 +8,10 @@ This plugin allows a developer to create fast CRUD's for WordPress admin panel. 
 * It's made to create generic CRUD's with little effort, priorizing convention over configuration. Not recommended to create complex admin panels
 * Generates automatically the database structure (can be enabled or disabled)
 * Uses `WP_List_Table` WordPress API to create the listings, so the result will be similar of the WordPress Posts and Pages admin sections
-* Stuff included: Menus, Actions, Bulk Actions, Pagination, Validation, REST API, Complex relationship fields
-* CRUD definitions are defined by default using JSON files and low-code concepts
+* Stuff included: Menus, Actions, Bulk Actions, Pagination, Validation, Complex relationship fields
+* Allow full REST operations including data pagination and Actions executing
+* CRUD definitions are defined by default using JSON files and uses low code / no code concepts
+* Some behaviors like dynamic SQL queries can be customized using PHP callback functions
 * CRUD objects are strictly mapped from JSON/arrays to PHP objects using [Cweiske JsonMapper library](https://github.com/cweiske/jsonmapper)
 * Database operations are mainly operated using [Laravel Eloquent Wrapper for WordPress library](https://github.com/tareq1988/wp-eloquent)
 * Actions operations and other background jobs heavily uses [WooCommerce ActionScheduler library](https://github.com/woocommerce/action-scheduler)
@@ -43,6 +45,12 @@ Alternativately you can download using the following link: https://github.com/mo
 * select
 * text
 * textarea
+* virtual (useful for displaying raw SQL expressions when list data on `WP_List_Table` or REST operations)
+
+## Built-in action types
+* simple (simple actions without input data for quick and no cpu-intensive task executions)
+* fieldable (actions that requires user input data from UI form or REST payload before execution)
+* background (cpu-intensive or time-consuming tasks that run as background jobs using [ActionScheduler library](https://github.com/woocommerce/action-scheduler))
 
 ## How to use
 

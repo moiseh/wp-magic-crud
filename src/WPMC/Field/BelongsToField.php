@@ -14,17 +14,6 @@ class BelongsToField extends FieldBase
      */
     private $ref_entity;
 
-    public function __construct($field = [])
-    {
-        // if ( empty($field['ref_entity'])) {
-        //     throw new Exception('Missing ref_entity');
-        // }
-
-        // $this->ref_entity = $field['ref_entity'];
-
-        parent::__construct($field);
-    }
-
     public function getDbType()
     {
         return 'INTEGER';

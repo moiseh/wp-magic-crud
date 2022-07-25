@@ -35,10 +35,6 @@ abstract class FieldBase
     private $isSortable;
     private $isViewable;
 
-    public function __construct()
-    {
-    }
-
     public function toArray() {
         $field = [];
         // $field['name'] = $this->getName();

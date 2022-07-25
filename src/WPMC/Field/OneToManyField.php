@@ -21,22 +21,6 @@ class OneToManyField extends FieldBase
      */
     private $ref_column;
 
-    public function __construct($field = [])
-    {
-        // if ( empty($field['ref_entity'])) {
-        //     throw new Exception('Missing ref_entity');
-        // }
-
-        // if ( empty($field['ref_column'])) {
-        //     throw new Exception('Missing ref_column');
-        // }
-
-        // $this->ref_entity = $field['ref_entity'];
-        // $this->ref_column = $field['ref_column'];
-
-        parent::__construct($field);
-    }
-
     public function validateDefinitions()
     {
         // this will throw if entity not exists

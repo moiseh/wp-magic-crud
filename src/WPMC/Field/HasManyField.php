@@ -33,32 +33,6 @@ class HasManyField extends FieldBase
      */
     private $pivot_right;
 
-    public function __construct($field = [])
-    {
-        // if ( empty($field['ref_entity'])) {
-        //     throw new Exception('Missing ref_entity');
-        // }
-
-        // if ( empty($field['pivot_table'])) {
-        //     throw new Exception('Missing pivot_table');
-        // }
-        
-        // if ( empty($field['pivot_left'])) {
-        //     throw new Exception('Missing pivot_left');
-        // }
-
-        // if ( empty($field['pivot_right'])) {
-        //     throw new Exception('Missing pivot_right');
-        // }
-
-        // $this->ref_entity = $field['ref_entity'];
-        // $this->pivot_table = $field['pivot_table'];
-        // $this->pivot_left = $field['pivot_left'];
-        // $this->pivot_right = $field['pivot_right'];
-
-        parent::__construct($field);
-    }
-
     public function toArray()
     {
         $arr = parent::toArray();

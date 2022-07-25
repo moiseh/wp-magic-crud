@@ -1,7 +1,6 @@
 <?php
 namespace WPMC\Field;
 
-use Exception;
 use WPMC\FieldBase;
 
 class SelectField extends FieldBase
@@ -11,17 +10,6 @@ class SelectField extends FieldBase
      * @required
      */
     private $choices;
-
-    public function __construct($field = [])
-    {
-        // if ( !isset($field['choices'])) {
-        //     throw new Exception('Missing choices');
-        // }
-
-        // $this->choices = $field['choices'];
-
-        parent::__construct($field);
-    }
 
     public function formatValue($value, $item)
     {
