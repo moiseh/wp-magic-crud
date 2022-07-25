@@ -9,6 +9,10 @@ This plugin allows a developer to create fast CRUD's for WordPress admin panel. 
 * Generates automatically the database structure (can be enabled or disabled)
 * Uses `WP_List_Table` WordPress API to create the listings, so the result will be similar of the WordPress Posts and Pages admin sections
 * Stuff included: Menus, Actions, Bulk Actions, Pagination, Validation, REST API, Complex relationship fields
+* CRUD definitions are defined by default using JSON files and low-code concepts
+* CRUD objects are strictly mapped from JSON/arrays to PHP objects using [Cweiske JsonMapper library](https://github.com/cweiske/jsonmapper)
+* Database operations are mainly operated using [Laravel Eloquent Wrapper for WordPress library](https://github.com/tareq1988/wp-eloquent)
+* Actions operations and other background jobs heavily uses [WooCommerce ActionScheduler library](https://github.com/woocommerce/action-scheduler)
 
 ## Installation Steps
 
