@@ -102,7 +102,7 @@ class EntityRest
         $identifier = $entity->getIdentifier();
 
         register_rest_route('crud', "{$identifier}/(?P<id>\d+)", array(
-            'methods'  => ['PUT', 'PATH'],
+            'methods'  => ['PUT', 'PATCH'],
             'permission_callback' => '__return_true',
             'callback' => function(\WP_REST_Request $req) use($entity){
                 try {
