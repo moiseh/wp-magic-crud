@@ -1,0 +1,75 @@
+{
+    "database": {
+        "table_name": "wp_wpmc_action_logs",
+        "primary_key": "id",
+        "default_order": "date DESC",
+        "display_field": "date",
+        "auto_create_tables": true
+    },
+    "menu": {
+        "menu_icon": "dashicons-admin-multisite",
+        "parent_menu": "psoft-manager",
+        "display_menu": true,
+        "singular": "CRUD action log",
+        "plural": "CRUD action logs"
+    },
+    "rest": {
+        "expose_as_rest": false
+    },
+    "actions": {
+        "rerun_action": {
+            "type": "simple",
+            "label": "Re-execute action",
+            "callback": "wpmc_rerun_action",
+            "is_bulkable": false
+        }
+    },
+    "fields": {
+        "date": {
+            "type": "datetime",
+            "label": "Date",
+            "required": true
+        },
+        "entity": {
+            "type": "text",
+            "label": "Entity",
+            "required": true,
+            "custom_display": "wpmc_entity_identifier_link"
+        },
+        "action_name": {
+            "type": "text",
+            "label": "Action",
+            "required": true
+        },
+        "exec_time": {
+            "type": "float",
+            "label": "Exec time",
+            "required": false
+        },
+        "action_ids": {
+            "type": "textarea",
+            "label": "IDs",
+            "required": false
+        },
+        "params": {
+            "type": "textarea",
+            "label": "Parameters",
+            "required": false
+        },
+        "result": {
+            "type": "textarea",
+            "label": "Result",
+            "required": false
+        },
+        "context": {
+            "type": "text",
+            "label": "Context",
+            "required": false
+        },
+        "user_id": {
+            "type": "integer",
+            "label": "User ID",
+            "required": false
+        }
+    }
+}
