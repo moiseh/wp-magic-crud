@@ -35,26 +35,8 @@ abstract class FieldBase
     private $isSortable;
     private $isViewable;
 
-    public function __construct($field = [])
+    public function __construct()
     {
-        // if ( empty($field['name'])) throw new Exception('Missing field name');
-        // if ( empty($field['type'])) throw new Exception('Missing field type');
-        // if ( empty($field['label'])) throw new Exception('Missing field label');
-
-        // $this->name = $field['name'];
-        // $this->type = $field['type'];
-        // $this->label = $field['label'];
-
-        // if ( isset($field['label'])) $this->label = $field['label'];
-        // if ( isset($field['required'])) $this->required = $field['required'];
-        // if ( isset($field['default'])) $this->default = $field['default'];
-        // if ( isset($field['value'])) $this->value = $field['value'];
-        // if ( isset($field['creatable'])) $this->isCreatable = $field['creatable'];
-        // if ( isset($field['editable'])) $this->isEditable = $field['editable'];
-        // if ( isset($field['listable'])) $this->isListable = $field['listable'];
-        // if ( isset($field['sortable'])) $this->isSortable = $field['sortable'];
-        // if ( isset($field['viewable'])) $this->isViewable = $field['viewable'];
-        // if ( !empty($field['custom_display'])) $this->customDisplay = $field['custom_display'];
     }
 
     public function toArray() {
