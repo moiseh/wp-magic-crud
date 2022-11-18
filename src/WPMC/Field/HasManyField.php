@@ -268,6 +268,6 @@ class HasManyField extends FieldBase
             'choices' => $refEntity->buildOptions(),
         ]);
 
-        $field->renderSafe();
+        $field->render();
     }
 }

@@ -21,4 +21,9 @@ class EntityRest
         $this->expose_as_rest = $expose_as_rest;
         return $this;
     }
+
+    public function validateDefinitions()
+    {
+        
+    }
 }

@@ -43,6 +43,9 @@ class FieldableAction extends Action
         return $this;
     }
 
+    /**
+     * @return FieldBase[]
+     */
     public function getFieldParams() {
         return $this->fieldParams;
     }

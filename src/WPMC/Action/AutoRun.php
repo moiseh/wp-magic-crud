@@ -20,14 +20,25 @@ class AutoRun
 
     /**
      * @required
-     * @var string
+     * @var int
      */
     private $batch_size;
+
+    /**
+     * @required
+     * @var int
+     */
+    private $limit_per_run;
 
     /**
      * @var string
      */
     private $query_callback;
+
+    /**
+     * @var string
+     */
+    private $where_raw;
 
     public function getRootAction()
     {
@@ -86,27 +97,75 @@ class AutoRun
         return $this;
     }
 
-    public function executeAutoRunQueue($force = false)
+    public function getWhereRaw()
+    {
+        return $this->where_raw;
+    }
+
+    public function setWhereRaw(string $where_raw)
+    {
+        $this->where_raw = $where_raw;
+        return $this;
+    }
+
+    public function getLimitPerRun()
+    {
+        return $this->limit_per_run;
+    }
+
+    public function setLimitPerRun(int $limit)
+    {
+        $this->limit_per_run = $limit;
+        return $this;
+    }
+
+    public function getCheckerJobHook()
     {
         $action = $this->getRootAction();
         $entity = $action->getRootEntity();
         $alias = $action->getAlias();
-        $transient = 'wpmc_background_action_' . $alias;
-        $interval = $this->getInterval(true);
+        $identifier = $entity->getIdentifier();
 
-        if ( !get_transient($transient) || $force ) {
-            set_transient($transient, 1, $interval);
+        return 'autorun_' . $alias;
+    }
 
-            $batchSize = $this->getBatchSize();
-            $pkey = $entity->getDatabase()->getPrimaryKey();
+    public function scheduleAutoJob()
+    {
+        $hook = $this->getCheckerJobHook();
 
-            $query = $this->buildARQuery();
+        if ( !as_has_scheduled_action($hook) ) {
+            $interval = $this->getInterval(true);
 
-            $query->chunkById($batchSize, function(\Illuminate\Support\Collection $items) use($pkey, $action){
-                $ids = $items->pluck($pkey);
-                $action->getRunner()->executeAction($ids);
-            }, $pkey);
+            as_schedule_recurring_action( time(), $interval, $hook, [], 'wpmc_autorun_checker' );
+            psInfoLog("Scheduled {$hook}, every {$interval} secs");
         }
+    }
+
+    public function maybeDispatchAutoRunTasks()
+    {
+        $action = $this->getRootAction();
+        $entity = $action->getRootEntity();
+        $batchSize = $this->getBatchSize();
+        $pkey = $entity->getDatabase()->getPrimaryKey();
+
+        $query = $this->buildARQuery();
+        $query->chunk($batchSize, function(\Illuminate\Support\Collection $items) use($pkey, $action){
+            static $count = 0;
+
+            $ids = $items->pluck($pkey);
+            $action->getRunner()->enqueueAsynchronous($ids);
+
+            $count += count($ids);
+            $maxPerRun = $this->getLimitPerRun();
+
+            // limit_per_run check
+            if ( ( $maxPerRun > 0 ) && ( $count >= $maxPerRun ) ) {
+                // psInfoLog('Breaking chunk to limit ' . $queryLimit . ' items');
+                return false;
+            }
+
+            return true;
+        });
     }
 
     /**
@@ -117,8 +176,18 @@ class AutoRun
         $rootAction = $this->getRootAction();
         $entity = $rootAction->getRootEntity();
         $queryCallback = $this->getQueryCallback();
+        
         $entityQuery = new EntityQuery($entity);
         $query = $entityQuery->buildEloquentQuery(false);
+        $query->orderByRaw( $entityQuery->getDefaultOrderCol() );
+
+        $whereRaw = $this->getWhereRaw();
+        
+        $query->limit( $this->getLimitPerRun() );
+
+        if ( !empty($whereRaw) ) {
+            $query->whereRaw($whereRaw);
+        }
 
         if ( !empty($queryCallback) ) {
             $query = call_user_func($queryCallback, $query);
@@ -130,10 +199,21 @@ class AutoRun
     public function validateDefinitions()
     {
         $arInterval = $this->getInterval();
+        $action = $this->getRootAction();
+        $alias = $action->getAlias();
+        $callback = $this->getQueryCallback();
 
         if ( strtotime($arInterval) === false ) {
-            throw new Exception('Invalid action.auto_run.interval => ' . $arInterval);
+            throw new Exception("Invalid action.auto_run.interval => {$arInterval}");
         }
+
+        // if ( !is_callable($callback) ) {
+        //     throw new Exception("Query callback is not callable for {$alias} action");
+        // }
+
+        // execute AutoRun query to check if have any syntax errors
+        $query = $this->buildARQuery();
+        $query->first();
     }
 
     public function toArray()
@@ -141,9 +221,14 @@ class AutoRun
         $arr = [];
         $arr['auto_run']['interval'] = $this->getInterval();
         $arr['auto_run']['batch_size'] = (int) $this->getBatchSize();
+        $arr['auto_run']['limit_per_run'] = (int) $this->getLimitPerRun();
 
         if ( $this->hasQueryCallback() ) {
             $arr['auto_run']['query_callback'] = $this->getQueryCallback();
+        }
+
+        if ( !empty($this->where_raw) ) {
+            $arr['auto_run']['where_raw'] = $this->getWhereRaw();
         }
 
         return $arr;

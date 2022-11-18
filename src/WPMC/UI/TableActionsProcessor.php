@@ -13,7 +13,13 @@ class TableActionsProcessor
     private function updateFormUrl($id) {
         $entity = $this->entity;
         $page = CommonAdmin::formPageIdentifier($entity);
-        return get_admin_url(get_current_blog_id(), 'admin.php?page='.$page.'&id='.$id);
+
+        $params = [];
+        $params['page'] = $page;
+        $params['id'] = $id;
+        $params['admin_back_to'] = base64_encode(serialize($_GET));
+
+        return get_admin_url(get_current_blog_id(), 'admin.php?' . http_build_query($params));
     }
 
     private function getActionLink($action, $id, $label) {
@@ -22,7 +28,25 @@ class TableActionsProcessor
 
     private function getActionUrl($action, $id) {
         $identifier = $this->entity->getIdentifier();
-        return get_admin_url(get_current_blog_id(), 'admin.php?page='.$identifier.'&action='.$action.'&id='.$id.'&crud='.$identifier);
+
+        $params = [];
+        $params['page'] = $identifier;
+        $params['action'] = $action;
+        $params['id'] = $id;
+        $params['crud'] = $identifier;
+        $params['admin_back_to'] = base64_encode(serialize($_GET));
+
+        return get_admin_url(get_current_blog_id(), 'admin.php?' . http_build_query($params));
+    }
+
+    private function getDeleteUrl($page, $id) {
+        $params = [];
+        $params['page'] = $page;
+        $params['action'] = 'delete';
+        $params['id'] = $id;
+        $params['admin_back_to'] = base64_encode(serialize($_GET));
+
+        return get_admin_url(get_current_blog_id(), 'admin.php?' . http_build_query($params));
     }
 
     public function getActions($item) {
@@ -30,19 +54,21 @@ class TableActionsProcessor
             return [];
         }
 
-        $updateUrl = $this->updateFormUrl($item['id']);
         $page = sanitize_text_field($_REQUEST['page']);
         $entity = $this->entity;
 
+        $updateUrl = $this->updateFormUrl($item['id']);
+        $deleteUrl = $this->getDeleteUrl($page, $item['id']);
+
         $actions = array(
             'edit' => sprintf('<a href="%s">%s</a>', $updateUrl, __('Edit', 'wp-magic-crud')),
-            'delete' => sprintf('<a href="?page=%s&action=delete&id=%s" onclick="return confirm(\'%s\')">%s</a>', $page, $item['id'], __('Confirm delete?', 'wp-magic-crud'), __('Delete', 'wp-magic-crud')),
+            'delete' => sprintf('<a href="%s" onclick="return confirm(\'%s\')">%s</a>', $deleteUrl, __('Confirm delete?', 'wp-magic-crud'), __('Delete', 'wp-magic-crud')),
         );
 
         $uiActions = $entity->actionsCollection()->getFieldableActionUIs();
 
         foreach ( $uiActions as $action ) {
-            $actions[ $action->getAlias() ] = $this->getActionLink($action->getAlias(), $item['id'], $action->getLabel());
+            $actions[ $action->getAlias() ] = "<br/> " . $this->getActionLink($action->getAlias(), $item['id'], $action->getLabel());
         }
 
         return apply_filters('wpmc_list_actions', $actions, $item);

@@ -6,8 +6,10 @@ jQuery(document).ready(function ($) {
     $(document).on("click", ".wpmc-line-add", function (e){
         var group_index = $(".entity-field-row").length;
         var raw_tpl = $("#wpmc-first-line-tpl").val();
+
         var replaced = raw_tpl.replace(/{index}/g, group_index);
-        
+        replaced = raw_tpl.replace('tplTextArea', 'textarea');
+
         $(".wpmc-onetomany-container-table tbody").append(replaced);
     });
 

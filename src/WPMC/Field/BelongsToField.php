@@ -26,7 +26,8 @@ class BelongsToField extends FieldBase
         $thisColumn = $this->getName();
 
         if ( $thisColumn != 'video_build_id' ) {
-            return "FOREIGN KEY (`{$thisColumn}`) REFERENCES {$refTable}(id),";
+            // deve fazer uma checagem se a FK ja existe, caso exista, nao executar pois causa erro mysql
+            // return "FOREIGN KEY (`{$thisColumn}`) REFERENCES {$refTable}(id),";
         }
     }
 
@@ -126,6 +127,6 @@ class BelongsToField extends FieldBase
             'choices' => $refEntity->buildOptions(),
         ]);
 
-        $field->renderSafe();
+        $field->render();
     }
 }

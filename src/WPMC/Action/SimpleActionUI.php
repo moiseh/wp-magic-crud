@@ -22,12 +22,12 @@ class SimpleActionUI extends UIAction
         try {
             $result = $action->getRunner()->runCallback( $ids );
             $this->checkResult($result);
-
-            wpmc_redirect( wpmc_entity_admin_url($entity) );
         }
         catch (Exception $e ) {
             wpmc_flash_message($e->getMessage(), 'error');
         }
+
+        wpmc_redirect( wpmc_entity_admin_url($entity) );
 
         return $this;
     }

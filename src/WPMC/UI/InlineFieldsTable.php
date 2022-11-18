@@ -57,7 +57,7 @@ class InlineFieldsTable
             <a class="button wpmc-line-add mg-top"><?php echo $addTitle; ?></a>
         <?php endif; ?>
         <textarea id='wpmc-first-line-tpl' style='display: none;'>
-            <?php echo $templateHtml; ?>
+            <?php echo str_replace('</textarea>', '</tplTextArea>', $templateHtml); ?>
         </textarea>
         <script>
             jQuery(document).ready(function ($) {
@@ -90,7 +90,7 @@ class InlineFieldsTable
                 ?>
                 <td class="">
                     <label for="<?php echo $name; ?>"><?php echo esc_html__($label); ?>:</label>
-                    <?php $field->renderSafe(); ?>
+                    <?php $field->render(); ?>
                 </td>
                 <?php
             }
@@ -123,7 +123,7 @@ class InlineFieldsTable
                 $name = $tmpField->getName();
 
                 // do not render certain field types
-                if ( ( $name != $refColumn ) && $tmpField->isPrimitiveType() ) {
+                if ( ( $name != $refColumn ) && $tmpField->isPrimitiveType() && $tmpField->isCreatable() ) {
                     $prepared[] = $tmpField;
                 }
             }

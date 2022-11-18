@@ -80,7 +80,7 @@ class ListTable extends \WP_List_Table {
     }
 
     function get_per_page() {
-        return apply_filters('wpmc_list_per_page', 15);
+        return apply_filters('wpmc_list_per_page', 100);
     }
 
     function execute_page_handler() {
@@ -110,6 +110,7 @@ class ListTable extends \WP_List_Table {
                     </a>
                 <?php endif; ?>
             </h2>
+            <div class="bulk-status" style="display: inline;"></div>
             <?php $this->renderRelatedEntity(); ?>
             <?php wpmc_flash_render(); ?>
             <form class="" method="POST">
@@ -118,6 +119,26 @@ class ListTable extends \WP_List_Table {
                 <?php $this->display() ?>
             </form>
         </div>
+        <script>
+            (function($){
+                jQuery(document).ready(function($){
+                    var displaySelecteds = function(){
+                        var checkeds = $('#the-list .check-column').find('input[type="checkbox"]:checked').length;
+
+                        if ( checkeds > 0 ) {
+                            $('.bulk-status').html('Total selecteds: ' + checkeds);
+                        }
+                        else {
+                            $('.bulk-status').html('');
+                        }
+                    };
+
+                    $('.check-column,.cb-select-all-1').on('click', function(){
+                        setTimeout(displaySelecteds, 100);
+                    });
+                });
+            })(jQuery);
+        </script>
         <?php
     }
 
@@ -155,7 +176,6 @@ class ListTable extends \WP_List_Table {
         $this->_column_headers = array($columns, $hidden, $sortable);
 
         $pQuery = new PaginatedQuery($entity);
-        $pQuery->fillFromRequest();
         $pQuery->setPerPage( $this->get_per_page() );
 
         $this->items = $pQuery->getFormattedPageItems();

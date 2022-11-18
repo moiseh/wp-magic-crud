@@ -66,3 +66,10 @@ I didn't found any ready to use solution that fit exactly my needs. With this i 
 ### 2. This is a ready to use for production?
 
 It was working and tested to use for my personal plugins, but is not heavily tested and backwards compatibility is not guaranteed. You can fork the project if it's useful to you and modify whatever you want. This was initially inspired in [WP Basic Crud](https://wordpress.org/plugins/wp-basic-crud/) plugin.
+
+## Hook examples
+
+### Define Entity objects load cache for 5 minutes
+`
+add_filter('wpmc_entity_cache_time', function(){ return 300; });
+`

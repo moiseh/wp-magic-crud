@@ -8,34 +8,67 @@ use WPMC\Entity;
 
 class EntityLoader
 {
+    /**
+     * @var Entity[]
+     */
+    private $entityObjects = null;
+
+    /**
+     * @var EntityLoader
+     */
+    private static $instance;
+
     public function __construct()
     {
     }
 
     public function loadEntityObjects()
     {
-        $cacheTime = apply_filters('wpmc_entity_cache_time', 0);
-        $entityObjects = [];
+        // return [];
 
-        // try read from objects cache
-        if ( $cacheTime > 0 ) {
-            $entityObjects = get_transient('wpmc_cache_entities') ?: [];
-        }
-
-        if ( empty($entityObjects) ) {
-            $entitiesData = $this->loadEntitiesData();
-
-            foreach ( $entitiesData as $identifier => $options ) {
-                $entityObjects[$identifier] = $this->mapEntity($identifier, $options);
-            }
-
-            // write temporary entities cache
+        if ( !isset($this->entityObjects)) {
+            $cacheTime = apply_filters('wpmc_entity_cache_time', 0);
+            $entityObjects = [];
+    
+            // try read from objects cache
             if ( $cacheTime > 0 ) {
-                set_transient('wpmc_cache_entities', $entityObjects, $cacheTime);
+                $entityObjects = get_transient('wpmc_cache_entities') ?: [];
             }
+    
+            if ( empty($entityObjects) ) {
+                $entitiesData = $this->loadEntitiesData();
+    
+                foreach ( $entitiesData as $identifier => $options ) {
+                    $entityObjects[$identifier] = $this->mapEntity($identifier, $options);
+                }
+    
+                // write temporary entities cache
+                if ( $cacheTime > 0 ) {
+                    set_transient('wpmc_cache_entities', $entityObjects, $cacheTime);
+                }
+            }
+
+            $this->entityObjects = $entityObjects;
         }
 
-        return $entityObjects;
+        return $this->entityObjects;
+    }
+    
+    public function clearEntitiesCache()
+    {
+        $this->entityObjects = null;
+        delete_transient('wpmc_cache_entities');
+    }
+
+    public function getEntityByAlias($name)
+    {
+        $entities = $this->loadEntityObjects();
+        
+        if( empty($entities[$name])) {
+            throw new Exception('Entity not found: ' . $name);
+        }
+
+        return $entities[$name];
     }
 
     private function mapEntity($identifier, $options)
@@ -93,5 +126,14 @@ class EntityLoader
     private function readJson($file) {
         $json = file_get_contents($file);
         return json_decode($json, true);
+    }
+
+    public static function getELInstance()
+    {
+        if ( empty(self::$instance) ) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
     }
 }

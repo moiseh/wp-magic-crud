@@ -1,6 +1,7 @@
 <?php
 namespace WPMC;
 
+use Illuminate\Database\Query\Builder;
 use WPMC\DB\EntityDataPersist;
 use WPMC\DB\EntityDataRemove;
 use WPMC\DB\EntityOptionsList;
@@ -175,6 +176,15 @@ class Entity
         return (new EntityQuery($this))->findByEntityId($id, $throwWhenNotExists);
     }
 
+    public function findManyByIds($ids = [])
+    {
+        return (new EntityQuery($this))->findByIds($ids);
+    }
+
+    public function newEloquentQuery(): Builder {
+        return (new EntityQuery($this))->buildEloquentQuery();
+    }
+
     public function displayTitleById($id, $throwWhenNotExists = false) {
         $row = $this->findById($id, $throwWhenNotExists);
         return $row[ $this->getDatabase()->getDisplayField() ];
@@ -187,15 +197,14 @@ class Entity
     public function validateDefinitions()
     {
         $this->getMenu()->validateDefinitions();
+        $this->getRest()->validateDefinitions();
         $this->getDatabase()->validateDefinitions();
         $this->actionsCollection()->validateDefinitions();
         $this->fieldsCollection()->validateDefinitions();
 
-        return 'Crud: ' . $this->getIdentifier() . 
-            ' - Table: ' . $this->getDatabase()->getTableName() .
-            ' - DBSync: ' . ( $this->getDatabase()->getAutoCreateTables() ? 'Yes' : 'No').
-            ' - REST: ' . ( $this->getRest()->getExposeAsRest() ? 'Yes' : 'No').
-            ' - Fields: ' . count($this->getFieldsObjects());
+        $info = 'Crud: ' . $this->getIdentifier() . ' - JSON: ' .  str_replace([WP_CONTENT_DIR, '//'], ['', '/'], $this->getJsonFile());
+        
+        return $info;
     }
 
     public function toArray() {

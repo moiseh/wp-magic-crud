@@ -31,7 +31,7 @@ class EntityOptionsList
             $qb->whereIn($pkey, $ids);
         }
         
-        $qb->orderBy($defaultOrder);
+        $qb->orderByRaw($defaultOrder);
 
         $rows = $qb->get();
         $opts = [];

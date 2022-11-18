@@ -13,15 +13,33 @@ class EntityQuery
 
     public function getDefaultOrderCol() {
         $entity = $this->entity;
-        return current(explode(' ', $entity->getDatabase()->getDefaultOrder()));
+        return $entity->getDatabase()->getDefaultOrder();
+        // return current(explode(' ', $entity->getDatabase()->getDefaultOrder()));
+    }
+
+    public function getDefaultOrderWithoutMode()
+    {
+        $defaultOrder = $this->getDefaultOrderCol();
+        
+        if ( substr($defaultOrder, -4) == 'DESC' ) {
+            return substr($defaultOrder, 0, -4);
+        }
+        else if ( substr($defaultOrder, -3) == 'ASC' ) {
+            return substr($defaultOrder, 0, -3);
+        }
+
+        return $defaultOrder;
     }
 
     public function getDefaultOrderMode() {
         $entity = $this->entity;
-        $exp = explode(' ', $entity->getDatabase()->getDefaultOrder());
+        $defaultOrder = $this->getDefaultOrderCol();
         
-        if ( count($exp) > 1 ) {
-            return $exp[1];
+        if ( substr($defaultOrder, -4) == 'DESC' ) {
+            return 'DESC';
+        }
+        else if ( substr($defaultOrder, -3) == 'ASC' ) {
+            return 'ASC';
         }
 
         return 'ASC';
@@ -33,7 +51,8 @@ class EntityQuery
     public function buildEloquentQuery($callFieldsAlter = true)
     {
         $entity = $this->entity;
-        $table = $entity->getDatabase()->getTableName();
+        $db = $entity->getDatabase();
+        $table = $db->getTableName();
         $fields = $entity->getFieldsObjects();
 
         /**
@@ -41,7 +60,7 @@ class EntityQuery
          */
         $qb = EloquentDBFacade::table($table);
 
-        if ( $entity->getDatabase()->hasPrimaryKey() ) {
+        if ( $db->hasPrimaryKey() ) {
             $qb->select(EloquentDBFacade::raw("{$table}.id"));
         }
 
@@ -140,17 +159,46 @@ class EntityQuery
     }
 
     public function findByEntityId($id, $throwWhenNotExists = false) {
-        $entity = $this->entity;
-        $table = $entity->getDatabase()->getTableName();
-        $pkey = $entity->getDatabase()->getPrimaryKey();
+        $rows = $this->findByIds([$id]);
 
-        $qb = $this->buildEloquentQuery()->where("{$table}.{$pkey}", $id);
-        $row = convertStdToArray( $qb->first() );
-
-        if ( empty($row) && $throwWhenNotExists ) {
-            throw new Exception('Record not found', 404);
+        if ( empty($rows[0]) ) {
+            if ( $throwWhenNotExists ) {
+                throw new Exception('Record not found', 404);
+            }
+            
+            return null;
         }
 
+        return $this->prepareRow($rows[0]);
+    }
+
+    public function findByIds($ids = [])
+    {
+        if ( empty($ids) ) {
+            return [];
+        }
+
+        $entity = $this->entity;
+        $db = $entity->getDatabase();
+        $table = $db->getTableName();
+        $pkey = $db->getPrimaryKey();
+
+        $query = $this->buildEloquentQuery();
+        $qb = $query->whereIn("{$table}.{$pkey}", $ids);
+        $rows = convertStdToArray( $qb->get() );
+
+        foreach ( $rows as $key => $row ) {
+            $rows[$key] = $this->prepareRow($row);
+        }
+
+        return $rows;
+    }
+
+    private function prepareRow($row = [])
+    {
+        $entity = $this->entity;
+        $db = $entity->getDatabase();
+        $pkey = $db->getPrimaryKey();
         $fields = $entity->getFieldsObjects();
 
         if ( !empty($row[$pkey])) {
@@ -162,20 +210,5 @@ class EntityQuery
         $row = apply_filters('wpmc_entity_find', $row, $entity);
 
         return $row;
-    }
-
-    public function findByIds($ids = []) {
-        if ( empty($ids) ) {
-            return [];
-        }
-
-        $entity = $this->entity;
-        $table = $entity->getDatabase()->getTableName();
-        $pkey = $entity->getDatabase()->getPrimaryKey();
-
-        $qb = $this->buildEloquentQuery()->whereIn("{$table}.{$pkey}", $ids);
-        $rows = convertStdToArray( $qb->get() );
-
-        return $rows;
     }
 }

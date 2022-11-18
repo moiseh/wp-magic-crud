@@ -20,7 +20,7 @@ class SelectField extends FieldBase
         return $value;
     }
 
-    private function getChoices()
+    public function getChoices()
     {
         return $this->choices;
     }

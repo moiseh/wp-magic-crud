@@ -25,6 +25,7 @@ abstract class FieldBase
 
     private $required;
     private $default;
+    private $db_default;
     private $value;
     private $label;
     private $customDisplay;
@@ -43,6 +44,7 @@ abstract class FieldBase
 
         if ( isset($this->required) ) $field['required'] = $this->getRequired();
         if ( isset($this->default) ) $field['default'] = $this->getDefault();
+        if ( isset($this->db_default) ) $field['db_default'] = $this->getDbDefault();
         if ( isset($this->value) ) $field['value'] = $this->getValue();
         if ( isset($this->customDisplay) ) $field['custom_display'] = $this->getCustomDisplay();
 
@@ -54,6 +56,115 @@ abstract class FieldBase
 
         return $field;
     }
+
+
+    public function validateDefinitions() {
+        $customDisplay = $this->getCustomDisplay();
+
+        if ( !empty($customDisplay) && !function_exists($customDisplay) ) {
+            throw new Exception('Invalid custom_display function: ' . $customDisplay);
+        }
+    }
+
+    public function alterEloquentQuery(\Illuminate\Database\Query\Builder $qb)
+    {
+        if ( $this->isPrimitiveType() ) {
+            $name = $this->getName();
+            $entity = $this->getRootEntity();
+            $table = $entity->getDatabase()->getTableName();
+
+            $qb->addSelect(EloquentDBFacade::raw("{$table}.{$name}"));
+        }
+    }
+
+    public function applyGenericSearchFilter(\Illuminate\Database\Query\Builder $qb, $search)
+    {
+        if ( $this->isPrimitiveType() && $this->allowGenericSearch() ) {
+            $name = $this->getName();
+            $table = $this->getRootEntity()->getDatabase()->getTableName();
+
+            $qb->orWhere("{$table}.{$name}", $search);
+        }
+    }
+
+    public function applySpecificSearchFilter(\Illuminate\Database\Query\Builder $qb, $value)
+    {
+        if ( $this->isPrimitiveType() ) {
+            $name = $this->getName();
+            $table = $this->getRootEntity()->getDatabase()->getTableName();
+
+            $qb->where("{$table}.{$name}", $value);
+        }
+    }
+
+    public function alterEntityFind($row = [])
+    {
+        return $row;
+    }
+
+    public function afterEntityDataSaved($item = []) {
+        return true;
+    }
+
+    public function deleteRelatedData($id, $item = [])
+    {
+    }
+
+    public function alterBeforeSave($value)
+    {
+        return $value;
+    }
+
+    public function formatValue($value, $item)
+    {
+        return $this->maybeApplyCustomDisplay($value, $item);
+    }
+
+    public function maybeApplyCustomDisplay($value, $item)
+    {
+        $customDisplay = $this->getCustomDisplay();
+
+        if ( !empty($customDisplay) ) {
+            $value = $customDisplay( $value, $item );
+        }
+        
+        return $value;
+    }
+
+    public function formatListTableRows($rows)
+    {
+        $name = $this->getName();
+
+        foreach ( $rows as $key => $row ) {
+            if ( array_key_exists($name, $row) ) {
+                $value = $row[$name];
+                $rows[$key][$name] = $this->formatValue($value, $row);
+            }
+        }
+
+        return $rows;
+    }
+
+    public function render() {
+        
+    }
+
+    public function renderWithLabel() {
+        ?>
+        <p>
+            <label for="<?php echo $this->getName(); ?>">
+                <?php echo esc_html__($this->getLabel()); ?>:
+            </label>
+            <br>
+            <?php $this->render(); ?>
+        </p>
+        <?php
+    }
+
+    protected function requiredTag() {
+        return $this->getRequired() ? 'required' : '';
+    }
+
 
     public function setRootEntity(Entity $entity) {
         $this->rootEntity = $entity;
@@ -114,6 +225,12 @@ abstract class FieldBase
         return $this->default;
     }
 
+    public function setDefault($default)
+    {
+        $this->default = $default;
+        return $this;
+    }
+
     public function getRequired() {
         return $this->required;
     }
@@ -124,6 +241,7 @@ abstract class FieldBase
 
     public function setValue($value) {
         $this->value = $value;
+        return $this;
     }
 
     public function hasValue() {
@@ -159,20 +277,19 @@ abstract class FieldBase
         return $this->getValue() ?: $this->getDefault();
     }
 
-    public function validateDefinitions() {
-        $customDisplay = $this->getCustomDisplay();
-
-        if ( !empty($customDisplay) && !function_exists($customDisplay) ) {
-            throw new Exception('Invalid custom_display function: ' . $customDisplay);
-        }
-    }
-
-    public function hasRenderer() {
-        return true;
-    }
 
     public function getDbType() {
         return 'VARCHAR(255)';
+    }
+
+    public function getDbDefault() {
+        return $this->db_default;
+    }
+
+    public function setDbDefault($default)
+    {
+        $this->db_default = $default;
+        return $this;
     }
 
     public function getDbReferences() {
@@ -195,94 +312,15 @@ abstract class FieldBase
         
     }
 
-    public function alterEloquentQuery(\Illuminate\Database\Query\Builder $qb)
+    public function setCreatable($isCreatable)
     {
-        if ( $this->isPrimitiveType() ) {
-            $name = $this->getName();
-            $entity = $this->getRootEntity();
-            $table = $entity->getDatabase()->getTableName();
+        $this->isCreatable = $isCreatable;
 
-            $qb->addSelect(EloquentDBFacade::raw("{$table}.{$name}"));
-        }
+        return $this;
     }
 
-    public function applyGenericSearchFilter(\Illuminate\Database\Query\Builder $qb, $search)
+    public function getCategoryTaxonomy()
     {
-        if ( $this->isPrimitiveType() && $this->allowGenericSearch() ) {
-            $name = $this->getName();
-            $table = $this->getRootEntity()->getDatabase()->getTableName();
-
-            $qb->orWhere("{$table}.{$name}", $search);
-        }
-    }
-
-    public function applySpecificSearchFilter(\Illuminate\Database\Query\Builder $qb, $value)
-    {
-        if ( $this->isPrimitiveType() ) {
-            $name = $this->getName();
-            $table = $this->getRootEntity()->getDatabase()->getTableName();
-
-            $qb->where("{$table}.{$name}", $value);
-        }
-    }
-
-    public function alterEntityFind($row = [])
-    {
-        return $row;
-    }
-
-    public function afterEntityDataSaved($item = []) {
-        return true;
-    }
-
-    public function formatValue($value, $item)
-    {
-        $customDisplay = $this->getCustomDisplay();
-
-        if ( !empty($customDisplay) ) {
-            $value = $customDisplay( $value, $item );
-        }
-        
-        return $value;
-    }
-
-    public function formatListTableRows($rows)
-    {
-        $name = $this->getName();
-
-        foreach ( $rows as $key => $row ) {
-            if ( array_key_exists($name, $row) ) {
-                $value = $row[$name];
-                $rows[$key][$name] = $this->formatValue($value, $row);
-            }
-        }
-
-        return $rows;
-    }
-
-    public function render() {
-        
-    }
-
-    public function renderSafe() {
-        if ( $this->hasRenderer()) {
-            $this->render();
-        }
-    }
-
-    public function renderWithLabel() {
-        ?>
-        <p>
-            <label for="<?php echo $this->getName(); ?>">
-                <?php echo esc_html__($this->getLabel()); ?>:
-            </label>
-            <br>
-            <?php $this->renderSafe(); ?>
-        </p>
-        <?php
-    }
-
-    protected function requiredTag() {
-        return $this->getRequired() ? 'required' : '';
+        return $this->getRootEntity()->getIdentifier() . '_' . $this->getName();
     }
 }

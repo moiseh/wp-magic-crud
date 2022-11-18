@@ -26,13 +26,13 @@ class EntitySchema
         
         $sql = "CREATE TABLE {$table} (
             `{$pkey}` int(11) NOT NULL AUTO_INCREMENT,
-            `user_id` INTEGER,
             " .  $stmt .
             $fkStmt . "
             PRIMARY KEY ({$pkey})
         ) {$charset}";
 
-        dbDelta($sql);
+        $query = dbDelta($sql);
+        psCheckDbError($query);
 
         // if ( $wpdb->last_error !== '' ) {
         //     throw new Exception('Error when creating HasManyField relationship table: ' . $sql);
@@ -51,15 +51,19 @@ class EntitySchema
     {
         $fields = $entity->getFieldsObjects();
         $stmt = [];
+        $stmt['user_id'] = " `user_id` INTEGER, ";
 
         foreach ( $fields as $field ) {
             if ( $field->isPrimitiveType() ) {
+                $dbDefault = $field->getDbDefault();
+
                 $col = $field->getName();
                 $dbType = $field->getDbType();
                 $ref = $field->getDbReferences();
                 $null = $field->getRequired() ? ' NOT NULL' : '';
+                $default = strlen($dbDefault) > 0 ? ' DEFAULT ' . $dbDefault : '';
     
-                $stmt[$col] = "  `{$col}` {$dbType}{$null}{$ref},";
+                $stmt[$col] = "  `{$col}` {$dbType}{$null}{$ref}{$default},";
             }
 
             $fk = $field->getForeignKeyStatement();
@@ -68,7 +72,7 @@ class EntitySchema
                 $foreignKeys[] = $fk;
             }
         }
-
+        
         return implode("\n", $stmt);
     }
 

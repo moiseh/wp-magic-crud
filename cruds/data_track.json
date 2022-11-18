@@ -1,32 +1,32 @@
 {
     "database": {
-        "table_name": "wp_wpmc_action_logs",
+        "table_name": "wp_wpmc_data_track",
         "primary_key": "id",
-        "default_order": "date DESC",
+        "default_order": "date DESC, pkey",
         "display_field": "date",
         "auto_create_tables": true,
         "track_changes": false,
         "cleanup": {
-            "run_interval": "24 hours",
-            "where_raw": "date < (NOW() - INTERVAL 1 MONTH)"
+            "run_interval": "8 hours",
+            "where_raw": "date < (NOW() - INTERVAL 7 DAY)"
         }
     },
     "menu": {
         "menu_icon": "dashicons-admin-multisite",
         "parent_menu": "psoft-manager",
         "display_menu": true,
-        "singular": "CRUD Action Log",
-        "plural": "CRUD Action Logs"
+        "singular": "CRUD Data Track",
+        "plural": "CRUD Data Tracks"
     },
     "rest": {
         "expose_as_rest": false
     },
     "actions": {
-        "rerun_action": {
+        "data_restore": {
             "type": "simple",
-            "label": "Re-execute action",
-            "callback": "wpmc_rerun_action",
-            "is_bulkable": false
+            "label": "Restore data",
+            "callback": "wpmc_data_restore_action",
+            "is_bulkable": true
         }
     },
     "fields": {
@@ -41,34 +41,29 @@
             "required": true,
             "custom_display": "wpmc_entity_identifier_link"
         },
-        "action_name": {
+        "operation": {
             "type": "text",
-            "label": "Action",
+            "label": "Operation",
             "required": true
         },
-        "exec_time": {
-            "type": "float",
-            "label": "Exec time",
-            "required": false
-        },
-        "action_ids": {
-            "type": "json",
-            "label": "IDs",
-            "required": false
-        },
-        "params": {
-            "type": "json",
-            "label": "Parameters",
-            "required": false
-        },
-        "result": {
-            "type": "json",
-            "label": "Result",
-            "required": false
-        },
-        "context": {
+        "pkey": {
             "type": "text",
-            "label": "Context",
+            "label": "PKey value",
+            "required": true
+        },
+        "field_name": {
+            "type": "text",
+            "label": "Field",
+            "required": true
+        },
+        "old_value": {
+            "type": "textarea",
+            "label": "Old value",
+            "required": false
+        },
+        "new_value": {
+            "type": "textarea",
+            "label": "New value",
             "required": false
         },
         "user_id": {

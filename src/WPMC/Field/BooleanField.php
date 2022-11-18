@@ -21,7 +21,7 @@ class BooleanField extends FieldBase
             'choices' => [1 => __('Yes'), 0 => __('No')],
         ]);
 
-        $field->renderSafe();
+        $field->render();
     }
 
     public function formatValue($value, $item)

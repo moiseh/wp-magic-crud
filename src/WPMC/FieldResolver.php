@@ -11,9 +11,12 @@ use WPMC\Field\DatetimeField;
 use WPMC\Field\DecimalField;
 use WPMC\Field\DurationField;
 use WPMC\Field\EmailField;
+use WPMC\Field\ExternalImageField;
 use WPMC\Field\FloatField;
 use WPMC\Field\HasManyField;
 use WPMC\Field\IntegerField;
+use WPMC\Field\JsonField;
+use WPMC\Field\LocalFileField;
 use WPMC\Field\OneToManyField;
 use WPMC\Field\SelectField;
 use WPMC\Field\TextAreaField;
@@ -46,6 +49,7 @@ class FieldResolver
         switch($field['type']) {
             case 'text': $obj = new TextField($field); break;
             case 'textarea': $obj = new TextAreaField($field); break;
+            case 'json': $obj = new JsonField($field); break;
             case 'integer': $obj = new IntegerField($field); break;
             case 'float': $obj = new FloatField($field); break;
             case 'decimal': $obj = new DecimalField($field); break;
@@ -53,6 +57,8 @@ class FieldResolver
             case 'checkbox_multi': $obj = new CheckboxMultiField($field); break;
             case 'select': $obj = new SelectField($field); break;
             case 'url': $obj = new UrlField($field); break;
+            case 'local_file': $obj = new LocalFileField($field); break;
+            case 'external_image': $obj = new ExternalImageField($field); break;
             case 'duration': $obj = new DurationField($field); break;
             case 'date': $obj = new DateField($field); break;
             case 'datetime': $obj = new DatetimeField($field); break;

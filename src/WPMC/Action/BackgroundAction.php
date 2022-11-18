@@ -49,6 +49,16 @@ class BackgroundAction extends Action implements ITriggerableAction
         return $this;
     }
 
+    public function getJobHook()
+    {
+        $entity = $this->getRootEntity();
+        $identifier = $entity->getIdentifier();
+        $alias = $this->getAlias();
+        $hook = 'action_' . $alias;
+        
+        return $hook;
+    }
+
     public function validateDefinitions()
     {
         $this->getAutoRun()->validateDefinitions();
@@ -71,5 +81,21 @@ class BackgroundAction extends Action implements ITriggerableAction
         }
 
         return $arr;
+    }
+
+    /**
+     * @return \WPMC\Action\BackgroundAction[]
+     */
+    public static function getAllBackgroundActions(): array
+    {
+        $entities = wpmc_load_app_entities();
+        $arActions = [];
+
+        foreach( $entities as $entity ) {
+            $entityActions = $entity->actionsCollection()->getBackgroundJobActions();
+            $arActions = array_merge($arActions, $entityActions);
+        }
+
+        return $arActions;
     }
 }

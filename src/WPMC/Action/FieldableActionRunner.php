@@ -19,9 +19,13 @@ class FieldableActionRunner extends ActionRunner
         return $this->inputParams;
     }
 
-    public function getInputParam($name) {
+    public function getInputParam($name, $default = null) {
         $params = $this->getInputParams();
-        return isset($params[$name]) ? $params[$name] : null;
+        return isset($params[$name]) ? $params[$name] : $default;
+    }
+
+    public function hasParam($name) {
+        return !empty($this->inputParams[$name]);
     }
 
     public function executeAction($ids = [], $params = []) {
@@ -43,15 +47,5 @@ class FieldableActionRunner extends ActionRunner
         }
 
         return $this;
-    }
-
-    protected function getLogData()
-    {
-        $data = parent::getLogData();
-        $params = $this->getInputParams();
-
-        $data['params'] = !empty($params) ? json_encode($params) : null;
-
-        return $data;
     }
 }

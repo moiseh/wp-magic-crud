@@ -76,6 +76,8 @@ class Form {
 
         $listingUrl = wpmc_entity_admin_url($entity);
 
+        do_action('wpmc_before_form_render', $this);
+
         ?>
         <div class="wrap">
             <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
@@ -105,6 +107,10 @@ class Form {
         if ( empty($postData) ) {
             $postData = $_REQUEST;
         }
+
+        $postData = array_map(function($val){
+            return stripslashes_deep($val);
+        }, $postData);
 
         $default = $this->form_default_values();
         $item = shortcode_atts($default, $postData);
@@ -231,8 +237,19 @@ class Form {
             if ( !empty($item[$name]) ) {
                 $field->setValue( $item[$name] );
             }
+            else {
+                $field->setValue( $field->getDefault() );
+            }
         }
 
         return null;
+    }
+
+    /**
+     * @return  Entity
+     */ 
+    public function getRootEntity()
+    {
+        return $this->entity;
     }
 }

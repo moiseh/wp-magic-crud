@@ -43,6 +43,68 @@ class EntityDatabase
      */
     private $auto_create_tables = false;
 
+    /**
+     * @var bool
+     * @required
+     */
+    private $track_changes = false;
+
+    public function validateDefinitions()
+    {
+        $entity = $this->getRootEntity();
+        $identifier = $entity->getIdentifier();
+        $table = $this->getTableName();
+
+        if ( !$this->hasPrimaryKey() && $this->getAutoCreateTables() ) {
+            throw new Exception('The both attributes database.primary_key and database.auto_create_tables needs to be filled: ' . $identifier);
+        }
+
+        if ( $entity->hasDbTableCleanup() ) {
+            $this->getCleanup()->validateDefinitions();
+        }
+
+        // check for complex SQL errors
+        // find first record (findFirst)
+        $first = EloquentDBFacade::table($table)->first();
+
+        if ( !empty($first->id) && $this->hasPrimaryKey() ) {
+            $row = $entity->findById( $first->id );
+            // var_dump($row);
+        }
+
+        $newQuery = new EntityQuery($entity);
+        $qb = $newQuery->buildEloquentQuery();
+        $first = $qb->first();
+
+        // validate display field
+        $displayField = $this->getDisplayField();
+
+        if ( !empty($displayField) ) {
+            if ( !$entity->fieldsCollection()->hasField($displayField) ) {
+                throw new Exception('Invalid display field: ' . $displayField);
+            }
+        }
+    }
+
+    public function toArray()
+    {
+        $entity = $this->getRootEntity();
+
+        $arr = [];
+        $arr['database']['table_name'] = $this->getTableName();
+        $arr['database']['primary_key'] = $this->getPrimaryKey();
+        $arr['database']['default_order'] = $this->getDefaultOrder();
+        $arr['database']['display_field'] = $this->getDisplayField();
+        $arr['database']['auto_create_tables'] = $this->getAutoCreateTables();
+        $arr['database']['track_changes'] = $this->getTrackChanges();
+
+        if ( $entity->hasDbTableCleanup() ) {
+            $arr['database']['cleanup'] = $this->getCleanup()->toArray();
+        }
+
+        return $arr;
+    }
+
     public function getRootEntity()
     {
         return $this->rootEntity;
@@ -134,59 +196,14 @@ class EntityDatabase
         return $this;
     }
 
-    public function validateDefinitions()
+    public function getTrackChanges()
     {
-        $entity = $this->getRootEntity();
-        $identifier = $entity->getIdentifier();
-        $table = $this->getTableName();
-
-        if ( !$this->hasPrimaryKey() && $this->getAutoCreateTables() ) {
-            throw new Exception('The both attributes database.primary_key and database.auto_create_tables needs to be filled: ' . $identifier);
-        }
-
-        if ( $entity->hasDbTableCleanup() ) {
-            $this->getCleanup()->validateDefinitions();
-        }
-
-        // check for complex SQL errors
-        // find first record (findFirst)
-        $first = EloquentDBFacade::table($table)->first();
-
-        if ( !empty($first->id) && $this->hasPrimaryKey() ) {
-            $row = $entity->findById( $first->id );
-            // var_dump($row);
-        }
-
-        $newQuery = new EntityQuery($entity);
-        $qb = $newQuery->buildEloquentQuery();
-        $first = $qb->first();
-
-        // validate display field
-        $displayField = $this->getDisplayField();
-
-        if ( !empty($displayField) ) {
-            if ( !$entity->fieldsCollection()->hasField($displayField) ) {
-                throw new Exception('Invalid display field: ' . $displayField);
-            }
-        }
+        return $this->track_changes;
     }
 
-    public function toArray()
+    public function setTrackChanges(bool $track_changes)
     {
-        $entity = $this->getRootEntity();
-
-        $arr = [];
-        $arr['database']['table_name'] = $this->getTableName();
-        $arr['database']['primary_key'] = $this->getPrimaryKey();
-        $arr['database']['default_order'] = $this->getDefaultOrder();
-        $arr['database']['display_field'] = $this->getDisplayField();
-        $arr['database']['auto_create_tables'] = $this->getAutoCreateTables();
-
-        if ( $entity->hasDbTableCleanup() ) {
-            $arr['database']['cleanup']['run_interval'] = $this->getCleanup()->getRunInterval();
-            $arr['database']['cleanup']['sql'] = $this->getCleanup()->getSql();
-        }
-
-        return $arr;
+        $this->track_changes = $track_changes;
+        return $this;
     }
 }

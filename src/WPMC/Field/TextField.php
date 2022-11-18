@@ -37,7 +37,8 @@ class TextField extends FieldBase
         <input type="text"
                 name="<?php echo $this->getName(); ?>"
                 id="<?php echo $this->getName(); ?>"
-                value="<?php echo $this->getValue(); ?>">
+                value="<?php echo $this->getValue(); ?>"
+                size="60">
         <?php
     }
 }

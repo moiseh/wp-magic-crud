@@ -5,7 +5,7 @@ use WPMC\Action\FieldableAction;
 
 class ActionForm
 {
-    private $ids;
+    private $ids = [];
 
     public function __construct(private FieldableAction $action, private $title)
     {
@@ -14,6 +14,15 @@ class ActionForm
     public function setContextIds($ids) {
         $this->ids = $ids;
         return $this;
+    }
+
+    // public function getContextIds() {
+    //     return $this->ids;
+    // }
+
+    public function getFieldableAction(): FieldableAction
+    {
+        return $this->action;
     }
 
     public function setEchoForm($echo) {
@@ -28,7 +37,7 @@ class ActionForm
         return add_query_arg( $qstring, '', $wp->request );
     }
 
-    private function getRequestIds() {
+    public function getRequestIds() {
         $ids = [];
 
         if ( !empty($_REQUEST['id']) ) {
@@ -55,7 +64,7 @@ class ActionForm
         $currPage = $this->getCurrentPageUrl();
 
         ob_start();
-
+        do_action('wpmc_action_form_before_render', $this);
         ?>
         <div class="wrap">
             <div class="icon32 icon32-posts-post" id="icon-edit">
@@ -76,7 +85,7 @@ class ActionForm
                 <?php endif; ?>
                 <div id="post-body-content">
                     <?php foreach ( $parameters as $field ): ?>
-                        <?php $field->renderWithLabel(); ?>
+                        <?php $field->setValue($field->getDefault())->renderWithLabel(); ?>
                     <?php endforeach; ?>
                 </div>
                 <?php $this->renderSubmit(__('Execute')); ?>

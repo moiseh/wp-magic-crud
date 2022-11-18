@@ -40,6 +40,8 @@ class OneToManyGridFormatter
             else {
                 $rows[$key][$name] = sprintf('%s %s', $countItems, $suffix);
             }
+
+            $rows[$key][$name] = $field->maybeApplyCustomDisplay($rows[$key][$name], $parentRow);
         }
 
         return $rows;

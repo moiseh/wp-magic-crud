@@ -10,23 +10,12 @@ class PaginatedQuery
     private $filters = [];
     private $orderBy;
     private $orderMode;
-    private $perPage = 10;
+    private $perPage = 15;
     private $pageNumber = 1;
     private $countItems;
     
     public function __construct(private Entity $entity)
     {
-    }
-
-    public function fillFromRequest()
-    {
-        $sortCols = $this->getSortableCols();
-
-        $this->searchTerm = !empty($_REQUEST['s']) ? sanitize_text_field($_REQUEST['s']) : '';
-        $this->filters = $_GET;
-        $this->orderBy = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], $sortCols)) ? sanitize_text_field($_REQUEST['orderby']) : null;
-        $this->orderMode = (isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc'))) ? sanitize_text_field($_REQUEST['order']) : null;
-        $this->pageNumber = isset($_REQUEST['paged']) ? intval($_REQUEST['paged']) : 1;
     }
 
     /**
@@ -35,8 +24,10 @@ class PaginatedQuery
     public function buildListingQuery() {
         $entity = $this->entity;
         $entityQuery = new EntityQuery($entity);
+        $search = $this->getSearchTerm();
+        $filters = $this->getFilters();
 
-        $qb = $entityQuery->buildQueryWithSearch($this->searchTerm, $this->filters);
+        $qb = $entityQuery->buildQueryWithSearch($search, $filters);
 
         return $qb;
     }
@@ -46,8 +37,8 @@ class PaginatedQuery
      */
     public function applyQueryPagination(\Illuminate\Database\Query\Builder $qb)
     {
-        $perPage = $this->perPage;
-        $pageNumber = $this->pageNumber;
+        $perPage = $this->getPerPage();
+        $pageNumber = $this->getPageNumber();
         $orderBy = $this->getOrderBy();
 
         $qb->orderByRaw($orderBy);
@@ -63,10 +54,15 @@ class PaginatedQuery
         $tableName = $entity->getDatabase()->getTableName();
         $entityQuery = new EntityQuery($entity);
         $orderBy = $this->orderBy;
-        $orderMode = $this->orderMode;
-        
+        $orderMode = $this->getOrderMode();
+        $sortCols = $this->getSortableCols();
+
+        if (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], $sortCols)) {
+            $orderBy = sanitize_text_field($_REQUEST['orderby']);
+        }
+
         if ( empty($orderBy) ) {
-            $orderBy = $entityQuery->getDefaultOrderCol();
+            $orderBy = $entityQuery->getDefaultOrderWithoutMode();
         }
 
         if ( empty($orderMode) ) {
@@ -79,6 +75,8 @@ class PaginatedQuery
     private function getPaginatedItems()
     {
         $query = $this->buildListingQuery();
+        // $query->whereRaw('YEAR(date) = 2022');
+
         $pagedQuery = $this->applyQueryPagination($query);
         $items = convertStdToArray($pagedQuery->get());
 
@@ -130,6 +128,53 @@ class PaginatedQuery
 
     public function getPerPage()
     {
+        if ( isset($_REQUEST['perpage']) ) {
+            return min( intval($_REQUEST['perpage']), 500 );
+        }
+
         return $this->perPage;
+    }
+
+    public function getPageNumber()
+    {
+        if ( isset($_REQUEST['paged']) ) {
+            return intval($_REQUEST['paged']);
+        }
+
+        return $this->pageNumber;
+    }
+
+    public function setPageNumber($pageNumber)
+    {
+        $this->pageNumber = $pageNumber;
+
+        return $this;
+    }
+
+    public function getSearchTerm()
+    {
+        if ( !empty($_REQUEST['s']) ) {
+            return sanitize_text_field($_REQUEST['s']);
+        }
+
+        return $this->searchTerm;
+    }
+
+    public function getOrderMode()
+    {
+        if ( isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc')) ) {
+            return sanitize_text_field($_REQUEST['order']);
+        }
+
+        return $this->orderMode;
+    }
+
+    public function getFilters()
+    {
+        if ( empty($this->filters) ) {
+            $this->filters = $_GET;
+        }
+
+        return $this->filters;
     }
 }

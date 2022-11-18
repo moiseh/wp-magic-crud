@@ -23,7 +23,8 @@ class EntityDataPersist
             $entity = $this->entity;
             $item = apply_filters('wpmc_process_save_data', $item, $entity);
             $itemToSave = $this->removeNonPrimitiveFields($item);
-    
+            $itemToSave = $this->callBeforeSave($itemToSave);
+
             // start transaction
             $wpdb->query('START TRANSACTION');
     
@@ -50,8 +51,10 @@ class EntityDataPersist
         global $wpdb;
 
         $entity = $this->entity;
-        $tableName = $entity->getDatabase()->getTableName();
-        $pkey = $entity->getDatabase()->getPrimaryKey();
+        $db = $entity->getDatabase();
+        $tableName = $db->getTableName();
+        $pkey = $db->getPrimaryKey();
+        $trackChanges = $db->getTrackChanges();
 
         if ( empty($pkValue) && !empty($item[$pkey])) {
             $pkValue = $item[$pkey];
@@ -61,16 +64,25 @@ class EntityDataPersist
             $result = $wpdb->insert($tableName, $item);
             psCheckDbError($result);
 
-            $id = $wpdb->insert_id;
-            
-            $this->runActionsOnCreate($id);
-            return $id;
+            $pkValue = $wpdb->insert_id;
+
+            if ( !empty($pkValue) && $trackChanges ) {
+                (new DataTrackSave($entity, $item))->saveForInsert($pkValue);
+            }
+
+            $this->runActionsOnCreate($pkValue);
+            return $pkValue;
         }
         else {
+            if ( $trackChanges ) {
+                (new DataTrackSave($entity, $item))->saveForUpdate($pkValue);
+            }
+            
             $result = $wpdb->update($tableName, $item, array($pkey => $pkValue));
             psCheckDbError($result);
 
             $this->runActionsOnUpdate($pkValue);
+
             return $pkValue;
         }
     }
@@ -125,6 +137,21 @@ class EntityDataPersist
 
             if ( !$field->isPrimitiveType() && isset($item[$name]) ) {
                 unset($item[$name]);
+            }
+        }
+
+        return $item;
+    }
+
+    private function callBeforeSave($item)
+    {
+        $entity = $this->entity;
+
+        foreach ( $entity->getFieldsObjects() as $field ) {
+            $name = $field->getName();
+
+            if ( isset($item[$name]) ) {
+                $item[$name] = $field->alterBeforeSave($item[$name]);
             }
         }
 

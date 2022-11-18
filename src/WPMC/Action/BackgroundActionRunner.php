@@ -28,13 +28,17 @@ class BackgroundActionRunner extends ActionRunner
         return __('Action sent to background');
     }
 
-    private function enqueueAsynchronous($ids, $params = [])
+    public function enqueueAsynchronous($ids = [], $params = [])
     {
-        $action = $this->action;
-        $rootEntity = $action->getRootEntity();
-        $entityAlias = $rootEntity->getIdentifier();
-        $actionAlias = $action->getAlias();
+        if ( empty($ids) ) {
+            return;
+        }
 
-        as_schedule_single_action( time(), 'wpmc_background_action', [ $entityAlias, $actionAlias, $ids, $params ]);
+        /**
+         * @var BackgroundAction
+         */
+        $action = $this->action;
+
+        as_schedule_single_action( time(), $action->getJobHook(), [ $ids, $params ]);
     }
 }

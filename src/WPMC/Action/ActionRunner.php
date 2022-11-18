@@ -78,8 +78,6 @@ class ActionRunner
 
     private function logAction($result)
     {
-        global $wpdb;
-
         $action = $this->action;
         $alias = $action->getAlias();
 
@@ -87,31 +85,23 @@ class ActionRunner
             return;
         }
         
-        $data = $this->getLogData();
-        $data['result'] = is_array($result) ? json_encode($result) : $result;
-
-        $saved = $wpdb->insert('wp_wpmc_action_logs', $data);
-        psCheckDbError($saved);
-
-        return $this;
-    }
-
-    protected function getLogData()
-    {
-        $action = $this->action;
         $entity = $action->getRootEntity();
-        $alias = $action->getAlias();
         $execTime = round($this->endTime - $this->startTime, 4);
 
-        $data = [];
-        $data['date'] = gmdate('Y-m-d H:i:s');
-        $data['entity'] = $entity->getIdentifier();
-        $data['action_name'] = $alias;
-        $data['exec_time'] = $execTime;
-        $data['context'] = $this->getContext();
-        $data['action_ids'] = json_encode($this->getContextIds());
-        $data['user_id'] = get_current_user_id();
+        $log = new ActionLog();
+        $log->setResult($result);
+        $log->setEntity($entity);
+        $log->setActionName($action->getAlias());
+        $log->setExecTime($execTime);
+        $log->setContext( $this->getContext() );
+        $log->setActionIds( $this->getContextIds() );
 
-        return $data;
+        if ( $this instanceof FieldableActionRunner ) {
+            $log->setParams( $this->getInputParams() );
+        }
+
+        $log->saveToDb();
+
+        return $this;
     }
 }

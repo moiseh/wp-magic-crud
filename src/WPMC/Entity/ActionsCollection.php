@@ -7,19 +7,15 @@ use WPMC\Action;
 use WPMC\Action\ArrayActionsMapper;
 use WPMC\Action\BackgroundAction;
 use WPMC\Action\ITriggerableAction;
+use WPMC\Action\IResttableAction;
 use Illuminate\Support\Collection;
 use Exception;
-use WPMC\Action\IResttableAction;
 
 class ActionsCollection extends Collection
 {
-    private $rootEntity;
-
-    public function __construct($items = [], Entity $rootEntity)
+    public function __construct($items = [], private Entity $rootEntity)
     {
         $actions = (new ArrayActionsMapper($rootEntity, $items))->resolveActions();
-
-        $this->rootEntity = $rootEntity;
         parent::__construct($actions);
     }
 
@@ -79,27 +75,27 @@ class ActionsCollection extends Collection
     }
 
     /**
-     * @return Action[]
+     * @return BackgroundAction[]
      */
-    private function getAutoRunJobActions() {
+    public function getBackgroundJobActions() {
+        return array_filter($this->actionItems(), function (Action $action) {
+            return $action instanceof BackgroundAction ?
+                $action->getRunner()->setContext(Action::CONTEXT_BACKGROUND_JOB) :
+                false;
+        });
+    }
+
+    /**
+     * @return BackgroundAction[]
+     */
+    public function getAutoRunJobActions() {
         return array_filter($this->actionItems(), function (Action $action) {
             return $action instanceof BackgroundAction && $action->hasAutoRun() ?
                 $action->getRunner()->setContext(Action::CONTEXT_AUTORUN_JOB) :
                 false;
         });
     }
-
-    public function checkRunEntityActions($forceAutoRun = false)
-    {
-        $actions = $this->getAutoRunJobActions();
-
-        foreach ( $actions as $action ) {
-            if ( $action instanceof BackgroundAction && $action->hasAutoRun() ) {
-                $action->getAutoRun()->executeAutoRunQueue( $forceAutoRun );
-            }
-        }
-    }
-
+    
     /**
      * @return Action[]
      */

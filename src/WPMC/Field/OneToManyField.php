@@ -21,6 +21,18 @@ class OneToManyField extends FieldBase
      */
     private $ref_column;
 
+    /**
+     * @var bool
+     * @required
+     */
+    private $delete_related_data;
+
+    /**
+     * @var bool
+     * @required
+     */
+    private $is_manageable;
+
     public function validateDefinitions()
     {
         // this will throw if entity not exists
@@ -42,6 +54,8 @@ class OneToManyField extends FieldBase
         $arr = parent::toArray();
         $arr['ref_entity'] = $this->ref_entity;
         $arr['ref_column'] = $this->ref_column;
+        $arr['is_manageable'] = $this->is_manageable;
+        $arr['delete_related_data'] = $this->delete_related_data;
 
         return $arr;
     }
@@ -68,6 +82,28 @@ class OneToManyField extends FieldBase
         return $this;
     }
 
+    public function setDeleteRelatedData(bool $delete)
+    {
+        $this->delete_related_data = $delete;
+        return $this;
+    }
+
+    public function getDeleteRelatedData()
+    {
+        return $this->delete_related_data;
+    }
+
+    public function setIsManageable(bool $isManageable)
+    {
+        $this->is_manageable = $isManageable;
+        return $this;
+    }
+
+    public function getIsManageable()
+    {
+        return $this->is_manageable;
+    }
+
     public function isPrimitiveType()
     {
         return false;
@@ -86,6 +122,7 @@ class OneToManyField extends FieldBase
 
         $query = $entityQuery->buildEloquentQuery();
         $query->where("{$refTable}.{$fieldRefColumn}", $relationId);
+        $query->orderByRaw( $entityQuery->getDefaultOrderCol() );
 
         return $query;
     }
@@ -147,10 +184,39 @@ class OneToManyField extends FieldBase
         return true;
     }
 
+    public function deleteRelatedData($id, $item = [])
+    {
+        $refEntity = $this->getRefEntity();
+        $refPkey = $refEntity->getDatabase()->getPrimaryKey();
+        $label = $this->getLabel();
+        $groupName = $this->getName();
+        $relatedData = $item[$groupName];
+
+        if ( empty($relatedData) ) {
+            return;
+        }
+
+        if ( !$this->getDeleteRelatedData() ) {
+            throw new Exception("The field {$label} does not allow to removed related data");
+        }
+
+        foreach ( $relatedData as $relatedRow ) {
+            $relatedId = $relatedRow[ $refPkey ];
+            $refEntity->delete($relatedId);
+        }
+    }
+
     public function formatListTableRows($rows)
     {
         $formatter = new OneToManyGridFormatter($this);
         return $formatter->formatRows($rows);
+    }
+
+    public function renderWithLabel()
+    {
+        if ( $this->getIsManageable() ) {
+            return parent::renderWithLabel();
+        }
     }
 
     public function render() {
